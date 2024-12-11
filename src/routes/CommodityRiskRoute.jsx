@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCommodityRiskThunk } from '../redux/CommodityRiskSlice'; // Action to fetch commodity data
 import CommodityRiskTable from '../components/CommodityRiskTable/CommodityRiskTable'; 
-import { PriceBoxContainer, PriceBox } from '../components/CommodityRiskTable/CommodityRiskTable.styles';
+import ProductionForecastTable from '../components/ProductionForecastTable/ProductionForecastTable'; // Add the new table
 
 const CommodityRiskRoute = () => {
   const dispatch = useDispatch();
@@ -16,8 +16,12 @@ const CommodityRiskRoute = () => {
 
   return (
     <div>
-      {status === 'loading' && <p>Loading commodity data...</p>}
+
+      {/* Add new section for production forecast */}
+      <ProductionForecastTable />
       
+      {status === 'loading' && <p>Loading commodity data...</p>}
+
       {status === 'succeeded' && commodityData.length > 0 ? (
         <div>
           <CommodityRiskTable commodityData={commodityData} /> {/* Pass commodity data to the table */}
@@ -27,8 +31,11 @@ const CommodityRiskRoute = () => {
       )}
 
       {status === 'failed' && <p>Error: {error}</p>}
+
+
     </div>
   );
 };
 
 export default CommodityRiskRoute;
+
