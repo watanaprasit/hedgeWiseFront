@@ -16,6 +16,7 @@ const ProductionForecastTable = () => {
   const productionData = useSelector((state) => state.dataUpload.data);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
   const handleDelete = (index) => {
     dispatch(deleteDataUpload(index));
   };
@@ -23,108 +24,82 @@ const ProductionForecastTable = () => {
   const openPopup = () => setIsPopupOpen(true);
   const closePopup = () => setIsPopupOpen(false);
 
-  // Handle CSV file upload
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        const csvData = reader.result.split('\n').map(row => row.split(','));
+        const rows = reader.result
+          .split('\n')
+          .map(row => row.split(',').map(cell => cell.trim())); // Trim all cells
 
-        // Validate headers
-        const headers = csvData[0]; // Get the first row (headers)
-        if (!isValidCsv(headers)) {
-          setErrorMessage('Invalid CSV format. Please ensure the file follows the correct structure.');
-          return; // Reject the file if headers are invalid
+        const fileHeaders = rows[0].map(header => header.trim()); // Trim headers
+        const headerMapping = mapHeaders(fileHeaders);
+
+        if (!headerMapping) {
+          setErrorMessage(`Invalid CSV format. Expected headers: ${expectedHeaders.join(', ')}`);
+          return;
         }
 
-        setErrorMessage(''); // Reset error message if the file is valid
-
-        // Process rows if the format is valid
-        csvData.forEach((row, index) => {
-          if (index !== 0) { // Skip header row
-            const [
-              forecastPeriod, region, country, asset, currentStatus, 
-              productType, breakevenPrice, dueMonth, volume, year, currency, extraField
-            ] = row;
-            dispatch(addDataUpload({
-              forecastPeriod, region, country, asset, currentStatus, 
-              productType, breakevenPrice, dueMonth, volume, year, currency, extraField
-            }));
-          }
+        // Parse and dispatch data rows
+        setErrorMessage('');
+        rows.slice(1).forEach((row) => {
+          const rowData = {};
+          Object.keys(headerMapping).forEach((key) => {
+            rowData[key] = row[headerMapping[key]] || ''; // Safely map values
+          });
+          dispatch(addDataUpload(rowData));
         });
       };
       reader.readAsText(file);
     }
   };
 
-  const isValidCsv = (headers) => {
-    return headers.length === expectedHeaders.length && 
-      headers.every((header, index) => header.trim() === expectedHeaders[index]);
+  const mapHeaders = (fileHeaders) => {
+    const mapping = {};
+    expectedHeaders.forEach((expectedHeader) => {
+      const index = fileHeaders.findIndex(
+        (header) => header.toLowerCase() === expectedHeader.toLowerCase()
+      );
+      if (index !== -1) {
+        mapping[expectedHeader] = index;
+      }
+    });
+    return Object.keys(mapping).length === expectedHeaders.length ? mapping : null;
   };
 
-  // Prepare CSV data for download
-  const headers = [
-    { label: "Region", key: "region" },
-    { label: "Country", key: "country" },
-    { label: "Asset", key: "asset" },
-    { label: "Reservoir Status", key: "currentStatus" },
-    { label: "Product Type", key: "productType" },
-    { label: "CCY", key: "currency" },
-    { label: "Breakeven Price", key: "breakevenPrice" },
-    { label: "Volume", key: "volumeField" },
-    { label: "Volume Units", key: "volume" },
-    { label: "Forecast Period", key: "forecastPeriod" },
-    { label: "Due Month", key: "dueMonth" },
-    { label: "Year", key: "year" },
-  ];
+  const csvHeaders = expectedHeaders.map(header => ({
+    label: header,
+    key: header.toLowerCase().replace(/ /g, ''), // Convert header to camelCase keys
+  }));
 
   return (
     <div>
       <input type="file" accept=".csv" onChange={handleFileUpload} />
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>} {/* Error message */}
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       <Button onClick={openPopup}>Add Row</Button>
-      
+
       {isPopupOpen && <AddProductionRow closePopup={closePopup} />}
-      
-      {/* CSV Download Link */}
-      <CSVLink data={productionData} headers={headers} filename="production_data.csv">
+
+      <CSVLink data={productionData} headers={csvHeaders} filename="production_data.csv">
         <Button>Download Sample CSV</Button>
       </CSVLink>
-      
+
       <Table>
         <thead>
           <TableRow>
-            <TableHeader>Region</TableHeader>
-            <TableHeader>Country</TableHeader>
-            <TableHeader>Asset</TableHeader>
-            <TableHeader>Reservoir Status</TableHeader>
-            <TableHeader>Product Type</TableHeader>
-            <TableHeader>CCY</TableHeader>
-            <TableHeader>Breakeven Price</TableHeader>
-            <TableHeader>Volume</TableHeader>
-            <TableHeader>Volume Units</TableHeader>
-            <TableHeader>Forecast Period</TableHeader>
-            <TableHeader>Due Month</TableHeader>
-            <TableHeader>Year</TableHeader>
+            {expectedHeaders.map(header => (
+              <TableHeader key={header}>{header}</TableHeader>
+            ))}
             <TableHeader>Actions</TableHeader>
           </TableRow>
         </thead>
         <tbody>
           {productionData.map((row, index) => (
             <TableRow key={index}>
-              <TableCell>{row.region}</TableCell>
-              <TableCell>{row.country}</TableCell>
-              <TableCell>{row.asset}</TableCell>
-              <TableCell>{row.currentStatus}</TableCell>
-              <TableCell>{row.productType}</TableCell>
-              <TableCell>{row.currency}</TableCell>
-              <TableCell>{row.breakevenPrice}</TableCell>
-              <TableCell>{row.volumeField}</TableCell>
-              <TableCell>{row.volume}</TableCell>
-              <TableCell>{row.forecastPeriod}</TableCell>
-              <TableCell>{row.dueMonth}</TableCell>
-              <TableCell>{row.year}</TableCell>
+              {Object.values(row).map((cell, cellIndex) => (
+                <TableCell key={cellIndex}>{cell}</TableCell>
+              ))}
               <TableCell>
                 <Button onClick={() => handleDelete(index)}>Delete</Button>
               </TableCell>
@@ -137,6 +112,9 @@ const ProductionForecastTable = () => {
 };
 
 export default ProductionForecastTable;
+
+
+
 
 
 

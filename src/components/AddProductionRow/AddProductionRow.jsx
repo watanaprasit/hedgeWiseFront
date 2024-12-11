@@ -14,10 +14,10 @@ const AddProductionRow = ({ closePopup }) => {
     productType: '',
     breakevenPrice: '',
     dueMonth: '',
-    volume: '',
+    volumeUnits: '',
     year: '',
     currency: '',
-    keyedInput: '',  // new input field
+    volume: '',  
   });
 
   const handleChange = (e) => {
@@ -39,19 +39,33 @@ const AddProductionRow = ({ closePopup }) => {
       productType: '',
       breakevenPrice: '',
       dueMonth: '',
-      volume: '',
+      volumeUnits: '',
       year: '',
       currency: '',
-      keyedInput: '',  // reset new input field
+      volume: '',  
     });
     closePopup();
   };
 
   const handleProductTypeChange = (e) => {
+    const selectedProductType = e.target.value;
+    let volumeUnit = '';
+    if (selectedProductType === 'crudeOil') {
+      volumeUnit = 'BOE';
+    } else if (selectedProductType === 'LNG') {
+      volumeUnit = 'MMBtu';
+    }
     setFormData({
       ...formData,
-      productType: e.target.value,
-      volume: e.target.value === 'crudeOil' ? 'BOE' : e.target.value === 'LNG' ? 'MMBtu' : '',
+      productType: selectedProductType,
+      volumeUnits: volumeUnit,
+    });
+  };
+
+  const handleVolumeChange = (e) => {
+    setFormData({
+      ...formData,
+      volume: e.target.value,
     });
   };
 
@@ -101,18 +115,18 @@ const AddProductionRow = ({ closePopup }) => {
                 <option value="LNG">LNG</option>
               </SelectInput>
               <InputField
-                name="keyedInput" 
+                name="volume"
                 type="number"
-                step="0.01" // Limit to two decimals
-                value={formData.keyedInput}
-                onChange={handleChange}
-                placeholder="Keyed Input"
+                step="0.01"
+                value={formData.volume}
+                onChange={handleVolumeChange}
+                placeholder="Volume"
               />
               <InputField
-                name="volume"
-                value={formData.volume}
+                name="volumeUnits"
+                value={formData.volumeUnits}
                 readOnly
-                placeholder="Volume"
+                placeholder="Volume Units"
               />
             </FormRow>
           </Box>
@@ -159,7 +173,7 @@ const AddProductionRow = ({ closePopup }) => {
               </SelectInput>
               <SelectInput name="year" value={formData.year} onChange={handleChange}>
                 <option value="" disabled>Year</option>
-                {[2024, 2025, 2026, 2027, 2028, 2029, 2030].map(year => (
+                {[2025, 2026, 2027, 2028, 2029, 2030].map(year => (
                   <option key={year} value={year}>{year}</option>
                 ))}
               </SelectInput>
@@ -174,6 +188,9 @@ const AddProductionRow = ({ closePopup }) => {
 };
 
 export default AddProductionRow;
+
+
+
 
 
 
