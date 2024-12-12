@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addDataUpload, deleteDataUpload } from '../../redux/ProductionDataUploadSlice';
+import { addDataUpload, deleteDataUpload} from '../../redux/ProductionDataUploadSlice';
 import { Table, TableHeader, TableRow, TableCell, Button } from './ProductionForecastTable.styles';
 import AddProductionRow from '../AddProductionRow/AddProductionRow';
 import { CSVLink } from 'react-csv';
@@ -17,9 +17,52 @@ const ProductionForecastTable = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleDelete = (index) => {
-    dispatch(deleteDataUpload(index));
+  useEffect(() => {
+    // Fetch production forecast data from Firestore API
+    fetch('http://127.0.0.1:8000/firebase-api/get-production-forecast/')
+      .then((response) => response.json())
+      .then((data) => {
+        if (data && Array.isArray(data)) {
+          // Map the data and dispatch only the 'data' field to Redux
+          const mappedData = data.map((item) => ({
+            id: item.id,  // Include the Firestore document id
+            ...item.data,  // Spread the 'data' field into the object
+          }));
+          
+          // Dispatch mapped data to Redux store
+          mappedData.forEach((item) => {
+            dispatch(addDataUpload(item));  // Add each item to Redux store
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching production forecast data:", error);
+        setErrorMessage("Error fetching data");
+      });
+  }, [dispatch]);
+  
+
+  const handleDelete = (id) => {
+    // Make DELETE request to Django API to delete from Firestore
+    fetch(`http://127.0.0.1:8000/firebase-api/delete-production-forecast/${id}/`, {
+      method: 'DELETE',
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.message === 'Document deleted successfully') {
+        // Successfully deleted from Firestore, now remove from Redux state
+        dispatch(deleteDataUpload(id));
+      } else {
+        console.error("Error deleting document:", data);
+        setErrorMessage("Error deleting document.");
+      }
+    })
+    .catch((error) => {
+      console.error("Error deleting from Firestore:", error);
+      setErrorMessage("Error deleting document.");
+    });
   };
+  
 
   const openPopup = () => setIsPopupOpen(true);
   const closePopup = () => setIsPopupOpen(false);
@@ -27,20 +70,21 @@ const ProductionForecastTable = () => {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+
       const reader = new FileReader();
       reader.onload = () => {
         const rows = reader.result
           .split('\n')
           .map(row => row.split(',').map(cell => cell.trim())); // Trim all cells
-
+  
         const fileHeaders = rows[0].map(header => header.trim()); // Trim headers
         const headerMapping = mapHeaders(fileHeaders);
-
+  
         if (!headerMapping) {
           setErrorMessage(`Invalid CSV format. Expected headers: ${expectedHeaders.join(', ')}`);
           return;
         }
-
+  
         // Parse and dispatch data rows
         setErrorMessage('');
         rows.slice(1).forEach((row) => {
@@ -48,7 +92,35 @@ const ProductionForecastTable = () => {
           Object.keys(headerMapping).forEach((key) => {
             rowData[key] = row[headerMapping[key]] || ''; // Safely map values
           });
+  
+          // Dispatch to Redux store
           dispatch(addDataUpload(rowData));
+  
+          console.log("Posting data:", JSON.stringify(rowData));
+  
+          // POST data to Django backend
+          fetch('http://127.0.0.1:8000/firebase-api/add-production-row/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(rowData),
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.message === "Data added successfully") {
+              console.log('Data successfully posted to Firestore');
+            }
+          })
+          .catch(error => {
+            console.error("Error posting data:", error);
+            setErrorMessage(`Error posting data: ${error.message}`);
+          });
         });
       };
       reader.readAsText(file);
@@ -95,16 +167,23 @@ const ProductionForecastTable = () => {
           </TableRow>
         </thead>
         <tbody>
-          {productionData.map((row, index) => (
-            <TableRow key={index}>
-              {Object.values(row).map((cell, cellIndex) => (
-                <TableCell key={cellIndex}>{cell}</TableCell>
-              ))}
-              <TableCell>
-                <Button onClick={() => handleDelete(index)}>Delete</Button>
-              </TableCell>
-            </TableRow>
-          ))}
+          {productionData.map((row) => {
+            console.log(row);  // Log the full row data to inspect the structure
+
+            // Use the row object directly (no need for row.data)
+            return (
+              <TableRow key={row.id}>
+                {expectedHeaders.map((header) => (
+                  <TableCell key={header}>
+                    {row[header] || 'N/A'}  {/* Directly access row properties */}
+                  </TableCell>
+                ))}
+                <TableCell>
+                  <Button onClick={() => handleDelete(row.id)}>Delete</Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </tbody>
       </Table>
     </div>
@@ -112,6 +191,12 @@ const ProductionForecastTable = () => {
 };
 
 export default ProductionForecastTable;
+
+
+
+
+
+
 
 
 

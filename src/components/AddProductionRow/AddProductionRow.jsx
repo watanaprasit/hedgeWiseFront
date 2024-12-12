@@ -29,7 +29,11 @@ const AddProductionRow = ({ closePopup }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Dispatch to Redux store
     dispatch(addDataUpload(formData));
+
+    // Reset form data after submit
     setFormData({
       forecastPeriod: '',
       region: '',
@@ -44,6 +48,8 @@ const AddProductionRow = ({ closePopup }) => {
       currency: '',
       volume: '',  
     });
+
+    // Close the popup after submission
     closePopup();
   };
 
@@ -188,6 +194,8 @@ const AddProductionRow = ({ closePopup }) => {
 };
 
 export default AddProductionRow;
+
+
 
 
 
