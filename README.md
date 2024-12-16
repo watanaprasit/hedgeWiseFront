@@ -13,4 +13,4 @@
 
 - **Frontend**: React.js, Redux Toolkit, Axios, Styled Components
 - **Backend**: Django API serving currency data
-- **Styling**: Custom styled components with CSS animations for dynamic effects
+
