@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addDataUpload, deleteDataUpload } from '../../redux/ProductionDataUploadSlice';
+import { setProductionData } from '../../redux/CommodityRiskSlice'; // Import setProductionData action
 import { Table, TableHeader, TableRow, TableCell, Button } from './ProductionForecastTable.styles';
 import AddProductionRow from '../AddProductionRow/AddProductionRow';
 import { CSVLink } from 'react-csv';
@@ -16,55 +17,26 @@ const ProductionForecastTable = () => {
   const productionData = useSelector((state) => state.dataUpload.data);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [volatilityData, setVolatilityData] = useState(null);
 
-  // Fetch volatility data from the API
-  useEffect(() => {
-    fetch('https://brent-volatility-predictor.fly.dev/volatility?symbol=BZ=F')
-      .then((response) => {
-        // Check if the response is OK (status 200)
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-  
-        // Read response as text (HTML content)
-        return response.text();
-      })
-      .then((data) => {
-        // You might want to extract the volatility figure from the HTML content
-        // For example, if the HTML contains a specific element like an <h1> or <span>
-        const volatilityMatch = data.match(/Next 7 Days Volatility:\s*([\d.]+)/);
-  
-        if (volatilityMatch) {
-          // If found, set the volatility data
-          setVolatilityData(volatilityMatch[1]);
-        } else {
-          // If no volatility value is found, handle the error
-          setErrorMessage("Error fetching volatility data.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching volatility data:", error);
-        setErrorMessage("Error fetching volatility data");
-      });
-  }, []);
-  
+  // State for total volume calculation by month, year, and volume unit
+  const [volumeBreakdown, setVolumeBreakdown] = useState({});
 
   useEffect(() => {
-    // Fetch production forecast data from Firestore API
     fetch('http://127.0.0.1:8000/firebase-api/get-production-forecast/')
       .then((response) => response.json())
       .then((data) => {
         if (data && Array.isArray(data)) {
-          // Map the data and dispatch only the 'data' field to Redux
           const mappedData = data.map((item) => ({
-            id: item.id,  // Include the Firestore document id
-            ...item.data,  // Spread the 'data' field into the object
+            id: item.id, 
+            ...item.data,  
           }));
-          
-          // Dispatch mapped data to Redux store
+
+          // Dispatch the action to update productionData in commodityRiskSlice
+          dispatch(setProductionData(mappedData));
+
+          // Also add data to dataUpload slice (if needed for other purposes)
           mappedData.forEach((item) => {
-            dispatch(addDataUpload(item));  // Add each item to Redux store
+            dispatch(addDataUpload(item));
           });
         }
       })
@@ -75,14 +47,12 @@ const ProductionForecastTable = () => {
   }, [dispatch]);
 
   const handleDelete = (id) => {
-    // Make DELETE request to Django API to delete from Firestore
     fetch(`http://127.0.0.1:8000/firebase-api/delete-production-forecast/${id}/`, {
       method: 'DELETE',
     })
     .then((response) => response.json())
     .then((data) => {
       if (data.message === 'Document deleted successfully') {
-        // Successfully deleted from Firestore, now remove from Redux state
         dispatch(deleteDataUpload(id));
       } else {
         console.error("Error deleting document:", data);
@@ -105,30 +75,25 @@ const ProductionForecastTable = () => {
       reader.onload = () => {
         const rows = reader.result
           .split('\n')
-          .map(row => row.split(',').map(cell => cell.trim())); // Trim all cells
-  
-        const fileHeaders = rows[0].map(header => header.trim()); // Trim headers
+          .map(row => row.split(',').map(cell => cell.trim())); 
+
+        const fileHeaders = rows[0].map(header => header.trim()); 
         const headerMapping = mapHeaders(fileHeaders);
-  
+
         if (!headerMapping) {
           setErrorMessage(`Invalid CSV format. Expected headers: ${expectedHeaders.join(', ')}`);
           return;
         }
-  
-        // Parse and dispatch data rows
+
         setErrorMessage('');
         rows.slice(1).forEach((row) => {
           const rowData = {};
           Object.keys(headerMapping).forEach((key) => {
-            rowData[key] = row[headerMapping[key]] || ''; // Safely map values
+            rowData[key] = row[headerMapping[key]] || ''; 
           });
-  
-          // Dispatch to Redux store
+
           dispatch(addDataUpload(rowData));
-  
-          console.log("Posting data:", JSON.stringify(rowData));
-  
-          // POST data to Django backend
+
           fetch('http://127.0.0.1:8000/firebase-api/add-production-row/', {
             method: 'POST',
             headers: {
@@ -172,26 +137,33 @@ const ProductionForecastTable = () => {
 
   const csvHeaders = expectedHeaders.map(header => ({
     label: header,
-    key: header.toLowerCase().replace(/ /g, ''), // Convert header to camelCase keys
+    key: header.toLowerCase().replace(/ /g, ''),
   }));
 
-  return (
-    <div style={{ position: 'relative' }}>
-      {/* Volatility figure at the top-right */}
-      <div style={{
-        position: 'absolute',
-        top: '10px',
-        right: '10px',
-        padding: '10px',
-        backgroundColor: '#f1f1f1',
-        border: '1px solid #ddd',
-        borderRadius: '5px',
-        fontSize: '16px',
-        fontWeight: 'bold',
-      }}>
-        {volatilityData ? `Next 7 Days Volatility: ${volatilityData}%` : 'Loading...'}
-      </div>
+// Calculate the volume breakdown by year, month, and volume unit
+  useEffect(() => {
+    const breakdown = {};
 
+    productionData.forEach((row) => {
+      const year = row.Year;
+      const month = row.DueMonth;
+      const volumeUnit = row['Volume Units'];
+      const volume = parseFloat(row.Volume);
+
+      if (isNaN(volume)) return; // Skip rows with invalid volume
+
+      if (!breakdown[year]) breakdown[year] = {};
+      if (!breakdown[year][month]) breakdown[year][month] = {};
+      if (!breakdown[year][month][volumeUnit]) breakdown[year][month][volumeUnit] = 0;
+
+      breakdown[year][month][volumeUnit] += volume;
+    });
+
+    setVolumeBreakdown(breakdown);
+  }, [productionData]);
+
+  return (
+    <div>
       <input type="file" accept=".csv" onChange={handleFileUpload} />
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       <Button onClick={openPopup}>Add Row</Button>
@@ -213,13 +185,11 @@ const ProductionForecastTable = () => {
         </thead>
         <tbody>
           {productionData.map((row) => {
-            console.log(row);  // Log the full row data to inspect the structure
-
             return (
               <TableRow key={row.id}>
                 {expectedHeaders.map((header) => (
                   <TableCell key={header}>
-                    {row[header] || 'N/A'}  {/* Directly access row properties */}
+                    {row[header] || 'N/A'}  
                   </TableCell>
                 ))}
                 <TableCell>
@@ -230,27 +200,34 @@ const ProductionForecastTable = () => {
           })}
         </tbody>
       </Table>
+
+      {/* New Area for Volume Breakdown by Year, Month, and Volume Units */}
+      <div style={{ marginTop: '20px' }}>
+        <h3>Volume Breakdown by Year, Month, and Volume Units:</h3>
+        {Object.keys(volumeBreakdown).map((year) => (
+          <div key={year} style={{ marginBottom: '20px' }}>
+            <h4>Year: {year}</h4>
+            {Object.keys(volumeBreakdown[year]).map((month) => (
+              <div key={month} style={{ marginLeft: '20px' }}>
+                <h5>Month: {month}</h5>
+                <ul>
+                  {Object.keys(volumeBreakdown[year][month]).map((volumeUnit) => (
+                    <li key={volumeUnit}>
+                      {volumeUnit}: {volumeBreakdown[year][month][volumeUnit].toFixed(2)} units
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
     </div>
   );
 };
 
 export default ProductionForecastTable;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
