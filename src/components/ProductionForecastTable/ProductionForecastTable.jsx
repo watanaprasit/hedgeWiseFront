@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addDataUpload, deleteDataUpload} from '../../redux/ProductionDataUploadSlice';
+import { addDataUpload, deleteDataUpload } from '../../redux/ProductionDataUploadSlice';
 import { Table, TableHeader, TableRow, TableCell, Button } from './ProductionForecastTable.styles';
 import AddProductionRow from '../AddProductionRow/AddProductionRow';
 import { CSVLink } from 'react-csv';
@@ -16,6 +16,39 @@ const ProductionForecastTable = () => {
   const productionData = useSelector((state) => state.dataUpload.data);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [volatilityData, setVolatilityData] = useState(null);
+
+  // Fetch volatility data from the API
+  useEffect(() => {
+    fetch('https://brent-volatility-predictor.fly.dev/volatility?symbol=BZ=F')
+      .then((response) => {
+        // Check if the response is OK (status 200)
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        // Read response as text (HTML content)
+        return response.text();
+      })
+      .then((data) => {
+        // You might want to extract the volatility figure from the HTML content
+        // For example, if the HTML contains a specific element like an <h1> or <span>
+        const volatilityMatch = data.match(/Next 7 Days Volatility:\s*([\d.]+)/);
+  
+        if (volatilityMatch) {
+          // If found, set the volatility data
+          setVolatilityData(volatilityMatch[1]);
+        } else {
+          // If no volatility value is found, handle the error
+          setErrorMessage("Error fetching volatility data.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching volatility data:", error);
+        setErrorMessage("Error fetching volatility data");
+      });
+  }, []);
+  
 
   useEffect(() => {
     // Fetch production forecast data from Firestore API
@@ -40,7 +73,6 @@ const ProductionForecastTable = () => {
         setErrorMessage("Error fetching data");
       });
   }, [dispatch]);
-  
 
   const handleDelete = (id) => {
     // Make DELETE request to Django API to delete from Firestore
@@ -62,7 +94,6 @@ const ProductionForecastTable = () => {
       setErrorMessage("Error deleting document.");
     });
   };
-  
 
   const openPopup = () => setIsPopupOpen(true);
   const closePopup = () => setIsPopupOpen(false);
@@ -70,7 +101,6 @@ const ProductionForecastTable = () => {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-
       const reader = new FileReader();
       reader.onload = () => {
         const rows = reader.result
@@ -146,7 +176,22 @@ const ProductionForecastTable = () => {
   }));
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      {/* Volatility figure at the top-right */}
+      <div style={{
+        position: 'absolute',
+        top: '10px',
+        right: '10px',
+        padding: '10px',
+        backgroundColor: '#f1f1f1',
+        border: '1px solid #ddd',
+        borderRadius: '5px',
+        fontSize: '16px',
+        fontWeight: 'bold',
+      }}>
+        {volatilityData ? `Next 7 Days Volatility: ${volatilityData}%` : 'Loading...'}
+      </div>
+
       <input type="file" accept=".csv" onChange={handleFileUpload} />
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       <Button onClick={openPopup}>Add Row</Button>
@@ -170,7 +215,6 @@ const ProductionForecastTable = () => {
           {productionData.map((row) => {
             console.log(row);  // Log the full row data to inspect the structure
 
-            // Use the row object directly (no need for row.data)
             return (
               <TableRow key={row.id}>
                 {expectedHeaders.map((header) => (
@@ -191,6 +235,7 @@ const ProductionForecastTable = () => {
 };
 
 export default ProductionForecastTable;
+
 
 
 
