@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchGeopoliticalNews } from '../redux/GeopoliticalNewsSlice'; // Action to fetch geopolitical news
 import GeopoliticalNewsTable from '../components/GeopoliticalNewsTable/GeopoliticalNewsTable';
 import AssetLocationTable from '../components/AssetLocationTable/AssetLocationTable';
+import AssetLocationMap from '../components/AssetLocationMap/AssetLocationMap';
 
 const GeopoliticalNewsRoute = () => {
   const dispatch = useDispatch();
@@ -19,6 +20,8 @@ const GeopoliticalNewsRoute = () => {
 
       {/* Add AssetsLocation component below */}
       <AssetLocationTable />
+
+      <AssetLocationMap />
       
       {status === 'loading' && <p>Loading geopolitical news...</p>}
 
