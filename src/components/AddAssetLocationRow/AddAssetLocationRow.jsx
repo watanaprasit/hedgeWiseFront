@@ -24,22 +24,43 @@ const AddAssetLocationRow = ({ closePopup }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-  
+
+    // Validate required fields
     if (!formData.assetName || !formData.region || !formData.status || !formData.productType) {
       alert('Please fill in all required fields.');
       return;
     }
-  
+
     // Generate unique ID using Date.now() or another method
     const newAsset = {
       ...formData,
       id: Date.now(), // Adding unique ID for the new asset
     };
-  
+
     console.log("Dispatching new asset:", newAsset);  // Log the data being dispatched
-    
-    dispatch(addAssetLocation(newAsset)); // Dispatch action
-  
+
+    // Dispatch the asset to the Redux store
+    dispatch(addAssetLocation(newAsset));
+
+    // Send the new asset to Firestore
+    fetch('http://127.0.0.1:8000/firebase-api/add-asset-location/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([newAsset]), // Send the asset as an array to match API format
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Asset added to Firestore:', data);
+      // Optionally handle Firestore response or errors here
+    })
+    .catch(error => {
+      console.error('Error posting asset to Firestore:', error);
+      alert('Error adding asset to Firestore');
+    });
+
+    // Reset form data after submission
     setFormData({
       assetName: '',
       region: '',
@@ -49,10 +70,10 @@ const AddAssetLocationRow = ({ closePopup }) => {
       status: '',
       productType: ''
     });
-  
+
+    // Close the popup after submission
     closePopup();
   };
-  
 
   return (
     <Overlay>
@@ -121,6 +142,8 @@ const AddAssetLocationRow = ({ closePopup }) => {
 };
 
 export default AddAssetLocationRow;
+
+
 
 
 
