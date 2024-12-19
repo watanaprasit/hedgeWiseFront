@@ -31,10 +31,9 @@ const AddAssetLocationRow = ({ closePopup }) => {
       return;
     }
 
-    // Generate unique ID using Date.now() or another method
+    // Remove ID generation, as Django handles the ID addition
     const newAsset = {
       ...formData,
-      id: Date.now(), // Adding unique ID for the new asset
     };
 
     console.log("Dispatching new asset:", newAsset);  // Log the data being dispatched
@@ -142,6 +141,7 @@ const AddAssetLocationRow = ({ closePopup }) => {
 };
 
 export default AddAssetLocationRow;
+
 
 
 
