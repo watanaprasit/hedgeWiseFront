@@ -10,8 +10,8 @@ export const cashflowProjectionSlice = createSlice({
       const newCashflowProjection = action.payload;
       const exists = state.data.some(item => item.id === newCashflowProjection.id);
       if (!exists) {
-        console.log("Adding new CashflowProjection to Redux:", newCashflowProjection);  // Log to verify dispatch
-        state.data.push(newCashflowProjection);  // Ensure the data is being added to the state
+        console.log("Adding new CashflowProjection to Redux:", newCashflowProjection);  
+        state.data.push(newCashflowProjection);  
       }
     },
     deleteCashflowProjection: (state, action) => {

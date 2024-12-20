@@ -5,6 +5,7 @@ import GeopoliticalNewsSlice from './GeopoliticalNewsSlice';
 import productionDataUploadReducer from './ProductionDataUploadSlice';
 import assetLocationReducer from './AssetLocationSlice';
 import cashflowProjectionReducer from './CashflowProjectionSlice';
+import forwardContractReducer from './ForwardContractSlice';
 
 const store = configureStore({
   reducer: {
@@ -13,7 +14,8 @@ const store = configureStore({
     geopoliticalNews: GeopoliticalNewsSlice,
     dataUpload: productionDataUploadReducer,
     assetLocation: assetLocationReducer,
-    cashflowProjection: cashflowProjectionReducer, 
+    cashflowProjection: cashflowProjectionReducer,
+    forwardContract : forwardContractReducer, 
   },
 });
 

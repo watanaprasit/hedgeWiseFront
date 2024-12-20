@@ -4,6 +4,7 @@ import { fetchFXRatesThunk } from '../redux/FXRiskSlice'; // Action to fetch FX 
 import FXRiskTable from '../components/FXRiskTable/FXRiskTable'; 
 import { PriceBoxContainer, PriceBox } from '../components/FXRiskTable/FXRiskTable.styles'; 
 import CashflowProjectionTable from '../components/CashflowProjectionTable/CashflowProjectionTable';
+import ForwardContractTable from '../components/ForwardContractTable/ForwardContractTable';
 
 const FXRiskRoute = () => {
   const dispatch = useDispatch();
@@ -30,6 +31,8 @@ const FXRiskRoute = () => {
     <div>
 
       <CashflowProjectionTable />
+
+      <ForwardContractTable />
       
       {status === 'loading' && <p>Loading FX Rates...</p>}
       
