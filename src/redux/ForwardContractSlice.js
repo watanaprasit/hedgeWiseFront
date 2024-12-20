@@ -10,7 +10,6 @@ export const forwardContractSlice = createSlice({
       const newforwardContract = action.payload;
       const exists = state.data.some(item => item.id === newforwardContract.id);
       if (!exists) {
-        console.log("Adding new forwardContract to Redux:", newforwardContract);  
         state.data.push(newforwardContract);  
       }
     },
@@ -25,7 +24,6 @@ export const forwardContractSlice = createSlice({
         const exists = state.data.some(item => item.id === newforwardContract.id);
         if (!exists) {
           state.data.push(newforwardContract);
-          console.log("State after adding forwardContract:", state.data);
         }
       });
     },

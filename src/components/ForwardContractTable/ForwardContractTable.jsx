@@ -8,10 +8,10 @@ import Papa from 'papaparse';
 
 const expectedHeaders = [
   "Ccy Pair",
-  "Amt Purchased",
+  "Hedged Amt",
   "Direction",
   "Forward Rate",
-  "Hedged Amt",
+  "USD Amt",
   "Maturity Month",
   "Maturity Year"
 ];
@@ -129,6 +129,23 @@ const ForwardContractTable = () => {
     }
   };
 
+  const formatAmount = (amount) => {
+    const parsedAmount = parseFloat(amount.replace(/,/g, ''));
+  
+    if (isNaN(parsedAmount)) return '-';
+  
+    const amountInThousands = parsedAmount / 1000;
+    const roundedValue = Math.round(amountInThousands);
+    const formattedValue = Math.abs(roundedValue).toLocaleString();
+  
+    return amountInThousands < 0
+      ? `(${formattedValue})`
+      : formattedValue;
+  };
+  
+  
+  
+
   return (
     <div>
       <Button onClick={() => setIsPopupOpen(true)}>Add Row</Button>
@@ -153,9 +170,18 @@ const ForwardContractTable = () => {
         <tbody>
           {ForwardContracts.map((row) => (
             <TableRow key={row.id}>
-              {expectedHeaders.map((header) => (
-                <TableCell key={header}>{row[header] || 'N/A'}</TableCell>
-              ))}
+              {expectedHeaders.map((header) => {
+                if (header === 'Hedged Amt' || header === 'USD Amt') {
+                  return (
+                    <TableCell key={header}>
+                      {formatAmount(row[header])}
+                    </TableCell>
+                  );
+                }
+                return (
+                  <TableCell key={header}>{row[header] || 'N/A'}</TableCell>
+                );
+              })}
               <TableCell>
                 <Button onClick={() => handleDelete(row.id)}>Delete</Button>
               </TableCell>

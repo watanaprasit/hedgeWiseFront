@@ -10,7 +10,6 @@ export const cashflowProjectionSlice = createSlice({
       const newCashflowProjection = action.payload;
       const exists = state.data.some(item => item.id === newCashflowProjection.id);
       if (!exists) {
-        console.log("Adding new CashflowProjection to Redux:", newCashflowProjection);  
         state.data.push(newCashflowProjection);  
       }
     },
@@ -25,14 +24,25 @@ export const cashflowProjectionSlice = createSlice({
         const exists = state.data.some(item => item.id === newCashflowProjection.id);
         if (!exists) {
           state.data.push(newCashflowProjection);
-          console.log("State after adding CashflowProjection:", state.data);
         }
       });
+    },
+    updateCashflowProjection: (state, action) => {
+      const updatedCashflowProjection = action.payload;
+      const index = state.data.findIndex(item => item.id === updatedCashflowProjection.id);
+      if (index !== -1) {
+        state.data[index] = { ...state.data[index], ...updatedCashflowProjection };
+      }
     },
   },
 });
 
-
-export const { addCashflowProjection, deleteCashflowProjection, resetCashflowProjections, bulkAddCashflowProjections } = cashflowProjectionSlice.actions;
+export const { 
+  addCashflowProjection, 
+  deleteCashflowProjection, 
+  resetCashflowProjections, 
+  bulkAddCashflowProjections, 
+  updateCashflowProjection 
+} = cashflowProjectionSlice.actions;
 
 export default cashflowProjectionSlice.reducer;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addCashflowProjection, deleteCashflowProjection } from '../../redux/CashflowProjectionSlice';
-import { Table, TableHeader, TableRow, TableCell, Button } from './CashflowProjectionTable.styles';
+import { addCashflowProjection, deleteCashflowProjection, updateCashflowProjection } from '../../redux/CashflowProjectionSlice';
+import { Table, TableHeader, TableRow, TableCell, Button, ScrollableTableContainer } from './CashflowProjectionTable.styles';
 import AddCashflowProjectionRow from '../AddCashflowProjectionRow/AddCashflowProjectionRow';
 import { CSVLink } from 'react-csv';
 import Papa from 'papaparse';
@@ -26,6 +26,8 @@ const CashflowProjectionTable = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [editingRow, setEditingRow] = useState(null); // Store the row being edited
+  const [formData, setFormData] = useState({});
 
   useEffect(() => {
     setLoading(true);
@@ -64,10 +66,44 @@ const CashflowProjectionTable = () => {
     .catch(error => {
       console.error('Error deleting Cashflow Projection:', error);
       setErrorMessage('Error deleting Cashflow Projection');
-    
     });
   };
-  
+
+  const handleEdit = (row) => {
+    setEditingRow(row.id);
+    setFormData({ ...row }); // Set the form data to the current row data
+    setIsPopupOpen(true);  // Open the popup for editing
+  };
+
+  const handleUpdate = (e) => {
+    e.preventDefault();
+    dispatch(updateCashflowProjection(formData));
+
+    fetch(`http://127.0.0.1:8000/firebase-api/modify-cashflow-projection/${formData.id}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Cashflow Projection updated successfully:', data);
+      setIsPopupOpen(false); // Close the popup
+      setEditingRow(null); // Reset the editing state
+    })
+    .catch(error => {
+      console.error('Error updating Cashflow Projection:', error);
+      setErrorMessage("Error updating Cashflow Projection");
+    });
+  };
+
+  const handleFormChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const mapHeaders = (fileHeaders) => {
     const mapping = {};
@@ -137,7 +173,7 @@ const CashflowProjectionTable = () => {
   return (
     <div>
       <Button onClick={() => setIsPopupOpen(true)}>Add Row</Button>
-      {isPopupOpen && <AddCashflowProjectionRow closePopup={() => setIsPopupOpen(false)} />}
+      {isPopupOpen && !editingRow && <AddCashflowProjectionRow closePopup={() => setIsPopupOpen(false)} />}
       <input type="file" accept=".csv" onChange={handleCSVUpload} />
       {loading && <p>Loading...</p>}
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
@@ -146,30 +182,54 @@ const CashflowProjectionTable = () => {
         <Button>Download Sample CSV</Button>
       </CSVLink>
 
-      <Table>
-        <thead>
-          <TableRow>
+      {editingRow && (
+        <div>
+          <h3>Edit Cashflow Projection</h3>
+          <form onSubmit={handleUpdate}>
             {expectedHeaders.map((header) => (
-              <TableHeader key={header}>{header}</TableHeader>
+              <div key={header}>
+                <label>{header}</label>
+                <input
+                  type="text"
+                  name={header}
+                  value={formData[header] || ''}
+                  onChange={handleFormChange}
+                />
+              </div>
             ))}
-            <TableHeader>Actions</TableHeader>
-          </TableRow>
-        </thead>
-        <tbody>
-          {CashflowProjections.map((row) => (
-            <TableRow key={row.id}>
+            <Button type="submit" style={{ backgroundColor: 'blue', color: 'white' }}>Update</Button>
+          </form>
+        </div>
+      )}
+
+      <ScrollableTableContainer>
+        <Table>
+          <thead>
+            <TableRow>
               {expectedHeaders.map((header) => (
-                <TableCell key={header}>{row[header] || 'N/A'}</TableCell>
+                <TableHeader key={header}>{header}</TableHeader>
               ))}
-              <TableCell>
-                <Button onClick={() => handleDelete(row.id)}>Delete</Button>
-              </TableCell>
+              <TableHeader>Actions</TableHeader>
             </TableRow>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {CashflowProjections.map((row) => (
+              <TableRow key={row.id}>
+                {expectedHeaders.map((header) => (
+                  <TableCell key={header}>{row[header] || 'N/A'}</TableCell>
+                ))}
+                <TableCell>
+                  <Button onClick={() => handleEdit(row)} style={{ backgroundColor: 'blue', color: 'white' }}>Update</Button>
+                  <Button onClick={() => handleDelete(row.id)}>Delete</Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </tbody>
+        </Table>
+      </ScrollableTableContainer>
     </div>
   );
 };
 
 export default CashflowProjectionTable;
+

@@ -7,10 +7,10 @@ const AddForwardContractRow = ({ closePopup }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     CcyPair: '',
-    AmtPurchased: '',
+    HedgedAmt: '',    // Changed to HedgedAmt
     Direction: '',
     ForwardRate: '',
-    HedgedAmt: '',
+    USDAmt: '',       // Changed to USDAmt
     MaturityMonth: '',
     MaturityYear: ''
   });
@@ -18,7 +18,7 @@ const AddForwardContractRow = ({ closePopup }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === 'AmtPurchased' || name === 'ForwardRate' || name === 'HedgedAmt') {
+    if (name === 'HedgedAmt' || name === 'ForwardRate' || name === 'USDAmt') {
       // Ensure no decimal places if needed
       setFormData({
         ...formData,
@@ -36,8 +36,8 @@ const AddForwardContractRow = ({ closePopup }) => {
     e.preventDefault();
 
     const requiredFields = [
-      'CcyPair', 'AmtPurchased', 'Direction', 'ForwardRate',
-      'HedgedAmt', 'MaturityMonth', 'MaturityYear'
+      'CcyPair', 'HedgedAmt', 'Direction', 'ForwardRate',
+      'USDAmt', 'MaturityMonth', 'MaturityYear'
     ];
 
     const isEmpty = requiredFields.some(field => !formData[field]);
@@ -73,10 +73,10 @@ const AddForwardContractRow = ({ closePopup }) => {
 
     setFormData({
       CcyPair: '',
-      AmtPurchased: '',
+      HedgedAmt: '',    // Reset to HedgedAmt
       Direction: '',
       ForwardRate: '',
-      HedgedAmt: '',
+      USDAmt: '',       // Reset to USDAmt
       MaturityMonth: '',
       MaturityYear: ''
     });
@@ -103,11 +103,11 @@ const AddForwardContractRow = ({ closePopup }) => {
                 <option value="EUR/GBP">EUR/GBP</option>
               </SelectInput>
               <InputField
-                name="AmtPurchased"
+                name="HedgedAmt"   // Updated field name
                 type="number"
-                value={formData.AmtPurchased}
+                value={formData.HedgedAmt}
                 onChange={handleChange}
-                placeholder="Amount Purchased"
+                placeholder="Hedged Amount"
                 required
               />
               <SelectInput
@@ -134,11 +134,11 @@ const AddForwardContractRow = ({ closePopup }) => {
           <Box>
             <FormRow>
               <InputField
-                name="HedgedAmt"
+                name="USDAmt"     // Updated field name
                 type="number"
-                value={formData.HedgedAmt}
+                value={formData.USDAmt}
                 onChange={handleChange}
-                placeholder="Hedged Amount (USD)"
+                placeholder="USD Amount"
                 required
               />
               <SelectInput
@@ -174,4 +174,5 @@ const AddForwardContractRow = ({ closePopup }) => {
 };
 
 export default AddForwardContractRow;
+
 

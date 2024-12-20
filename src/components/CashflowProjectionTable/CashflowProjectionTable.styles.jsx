@@ -29,3 +29,11 @@ export const Button = styled.button`
     background-color: #45a049;
   }
 `;
+
+export const ScrollableTableContainer = styled.div`
+  max-height: 400px;
+  overflow: auto;
+  border: 1px solid #ccc;
+  margin-top: 10px;
+`;
+

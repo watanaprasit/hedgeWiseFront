@@ -5,6 +5,7 @@ import FXRiskTable from '../components/FXRiskTable/FXRiskTable';
 import { PriceBoxContainer, PriceBox } from '../components/FXRiskTable/FXRiskTable.styles'; 
 import CashflowProjectionTable from '../components/CashflowProjectionTable/CashflowProjectionTable';
 import ForwardContractTable from '../components/ForwardContractTable/ForwardContractTable';
+import FXTabulation from '../components/FXTabulation/FXTabulation';
 
 const FXRiskRoute = () => {
   const dispatch = useDispatch();
@@ -31,6 +32,8 @@ const FXRiskRoute = () => {
     <div>
 
       <CashflowProjectionTable />
+
+      <FXTabulation />
 
       <ForwardContractTable />
       
