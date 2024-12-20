@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFXRatesThunk } from '../redux/FXRiskSlice'; // Action to fetch FX rates
 import FXRiskTable from '../components/FXRiskTable/FXRiskTable'; 
-import { PriceBoxContainer, PriceBox } from '../components/FXRiskTable/FXRiskTable.styles'; // Import new styled components
+import { PriceBoxContainer, PriceBox } from '../components/FXRiskTable/FXRiskTable.styles'; 
+import CashflowProjectionTable from '../components/CashflowProjectionTable/CashflowProjectionTable';
 
 const FXRiskRoute = () => {
   const dispatch = useDispatch();
@@ -27,6 +28,9 @@ const FXRiskRoute = () => {
 
   return (
     <div>
+
+      <CashflowProjectionTable />
+      
       {status === 'loading' && <p>Loading FX Rates...</p>}
       
       {status === 'succeeded' && latestFXRatesArray.length > 0 ? (
