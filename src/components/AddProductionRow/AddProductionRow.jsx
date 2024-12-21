@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addDataUpload } from '../../redux/ProductionDataUploadSlice';
-import { Button, Input, Select, FormContainer, CloseButton, Overlay, Box, FormRow, SelectInput, InputField } from './AddProductionRow.styles';
+import { Button, FormContainer, CloseButton, Overlay, Box, FormRow, SelectInput, InputField } from './AddProductionRow.styles';
 
 const AddProductionRow = ({ closePopup }) => {
   const dispatch = useDispatch();
@@ -194,7 +194,6 @@ const AddProductionRow = ({ closePopup }) => {
 };
 
 export default AddProductionRow;
-
 
 
 

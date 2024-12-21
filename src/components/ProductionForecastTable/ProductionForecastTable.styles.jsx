@@ -1,39 +1,39 @@
-// ProductionForecastTable.styles.js
-
 import styled from 'styled-components';
 
 export const Table = styled.table`
   width: 100%;
-  margin-top: 20px;
   border-collapse: collapse;
 `;
 
-export const TableRow = styled.tr`
-  background-color: #f9f9f9;
+export const TableHeader = styled.th`
+  padding: 10px;
+  text-align: left;
+  background-color: #f2f2f2;
 `;
+
+export const TableRow = styled.tr``;
 
 export const TableCell = styled.td`
-  padding: 12px;
+  padding: 10px;
   border: 1px solid #ddd;
-`;
-
-export const TableHeader = styled.th`
-  padding: 12px;
-  background-color: #f4f4f9;
-  border: 1px solid #ddd;
-  font-weight: bold;
 `;
 
 export const Button = styled.button`
-  background-color: #4CAF50; /* Green */
+  padding: 8px 12px;
+  background-color: #4CAF50;
   color: white;
-  padding: 10px 20px;
   border: none;
   cursor: pointer;
-  font-size: 14px;
 
   &:hover {
     background-color: #45a049;
   }
+`;
+
+export const ScrollableTableContainer = styled.div`
+  max-height: 400px;
+  overflow: auto;
+  border: 1px solid #ccc;
+  margin-top: 10px;
 `;
 

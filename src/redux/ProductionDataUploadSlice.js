@@ -6,30 +6,25 @@ const productionDataUploadSlice = createSlice({
     data: [],
   },
   reducers: {
-    // Action to add new data to the store
     addDataUpload: (state, action) => {
-      state.data.push(action.payload);
+      const newData = Array.isArray(action.payload) ? action.payload : [action.payload];
+      state.data = [...state.data, ...newData];
     },
-    // Action to delete data by index
     deleteDataUpload: (state, action) => {
-      // Remove the row at the specified index
-      state.data.splice(action.payload, 1);
+      state.data = state.data.filter((row) => row.id !== action.payload);
     },
-    // Action to set data from the backend (overwrite the existing data)
     setDataFromBackend: (state, action) => {
-      state.data = action.payload; // Set state from backend data
+      state.data = action.payload;
     },
-    // Action to clear all data (for handling new uploads)
     clearDataUpload: (state) => {
-      state.data = []; // Clear all data from the store
+      state.data = [];
     },
   },
 });
 
-// Export actions
 export const { addDataUpload, deleteDataUpload, setDataFromBackend, clearDataUpload } = productionDataUploadSlice.actions;
-
 export default productionDataUploadSlice.reducer;
+
 
 
 
