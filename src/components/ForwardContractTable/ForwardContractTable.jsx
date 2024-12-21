@@ -162,7 +162,11 @@ const ForwardContractTable = () => {
         <thead>
           <TableRow>
             {expectedHeaders.map((header) => (
-              <TableHeader key={header}>{header}</TableHeader>
+              <TableHeader key={header}>
+              {header === 'Hedged Amt' ? 'Hedged Amt (\'000)' :
+               header === 'USD Amt' ? 'USD Amt (\'000)' :
+               header}
+              </TableHeader>
             ))}
             <TableHeader>Actions</TableHeader>
           </TableRow>

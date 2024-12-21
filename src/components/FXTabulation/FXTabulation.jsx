@@ -4,7 +4,7 @@ import { Table, TableRow, TableCell } from './FXTabulation.styles';
 
 const FXTabulation = () => {
   const cashflowProjections = useSelector((state) => state.cashflowProjection.data);
-  const forwardContracts = useSelector((state) => state.forwardContract.data); // Access forwardContract data
+  const forwardContracts = useSelector((state) => state.forwardContract.data); 
   const [netExposureData, setNetExposureData] = useState([]);
   const [currencyFilter, setCurrencyFilter] = useState('');
   const [monthYearFilter, setMonthYearFilter] = useState('');
@@ -63,17 +63,16 @@ const FXTabulation = () => {
   }, [cashflowProjections]);
 
   const formatNetExposure = (value) => {
-    const roundedValue = Math.round(value); // Convert to thousands
-    const formattedValue = Math.abs(roundedValue).toLocaleString(); // Add comma separators
-    return value < 0 ? `(${formattedValue})` : formattedValue; // Add parentheses for negatives
+    const roundedValue = Math.round(value); 
+    const formattedValue = Math.abs(roundedValue).toLocaleString(); 
+    return value < 0 ? `(${formattedValue})` : formattedValue; 
   };
 
 
   
   const formatAmount = (amount) => {
-    // Ensure proper scaling by dividing by 1000 to get '70' instead of '70000'
-    const amountInThousands = amount / 1000; // Divide by 1000 to get '70' instead of '70000'
-    const roundedValue = Math.round(amountInThousands); // Round to nearest integer
+    const amountInThousands = amount / 1000; 
+    const roundedValue = Math.round(amountInThousands); 
     const formattedValue = Math.abs(roundedValue).toLocaleString();
   
     return amountInThousands < 0
@@ -85,7 +84,6 @@ const FXTabulation = () => {
   
   
   const getHedgedAmount = (currency, monthYear) => {
-    
     const hedgedContract = forwardContracts.find((contract) => {
       const contractMonth = contract['Maturity Month'] || 'Unknown';  
       let contractYear = contract['Maturity Year'] || new Date().getFullYear(); 
@@ -100,33 +98,23 @@ const FXTabulation = () => {
     }
   
     const hedgedAmount = parseFloat(hedgedContract['Hedged Amt'].replace(/,/g, '')) || 0;
-    return hedgedAmount; // Return the raw hedged amount without formatting
+    return hedgedAmount; 
   };
 
   const getHedgedPercentage = (hedgedAmount, netExposure) => {
-    // Divide both values by 1000 for proper scaling
     const validHedgedAmount = Math.abs(parseFloat(hedgedAmount)) / 1000 || 0;
     const validNetExposure = Math.abs(parseFloat(netExposure)) || 0;
-  
-    console.log(`Valid Hedged Amount: ${validHedgedAmount}, Valid Net Exposure: ${validNetExposure}`);
-  
-    // Avoid division by zero
+    
     if (validNetExposure === 0) {
       return validHedgedAmount === 0 ? '0.00' : '100.00';
     }
+
+    const percentage = (validHedgedAmount / validNetExposure) * 100; 
   
-    // Calculate percentage
-    const percentage = (validHedgedAmount / validNetExposure) * 100; // Scale to percentage
-  
-    console.log(`Calculated Hedged Percentage: ${percentage}`);
-  
-    return percentage.toFixed(1);  // Show percentage with one decimal
+    return percentage.toFixed(1);  
   };
   
   
-  
-  
-  // Filtered data based on selected filters
   const filteredData = netExposureData.filter(
     (row) =>
       (currencyFilter ? row.Currency === currencyFilter : true) &&
@@ -135,7 +123,7 @@ const FXTabulation = () => {
 
   return (
     <div>
-      <h3>FX Net Exposure Tabulation</h3>
+      <h3>FX Hedging Portfolio</h3>
       
       <Table>
         <thead>
@@ -175,8 +163,8 @@ const FXTabulation = () => {
                 <TableCell>{row.Currency}</TableCell>
                 <TableCell>{row.MonthYear}</TableCell>
                 <TableCell>{formatNetExposure(row.NetExposure)}</TableCell>
-                <TableCell>{formatAmount(hedgedAmount)}</TableCell> {/* Format the hedged amount */}
-                <TableCell>{hedgedPercentage}</TableCell> {/* Display the calculated percentage */}
+                <TableCell>{formatAmount(hedgedAmount)}</TableCell> 
+                <TableCell>{hedgedPercentage}</TableCell> 
               </TableRow>
             );
           })}
