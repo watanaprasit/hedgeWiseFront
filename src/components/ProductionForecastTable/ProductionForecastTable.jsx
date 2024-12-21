@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addDataUpload, deleteDataUpload } from '../../redux/ProductionDataUploadSlice';
-import { setProductionData } from '../../redux/CommodityRiskSlice'; // Import setProductionData action
+import { setProductionData } from '../../redux/CommodityRiskSlice'; 
 import { Table, TableHeader, TableRow, TableCell, Button } from './ProductionForecastTable.styles';
 import AddProductionRow from '../AddProductionRow/AddProductionRow';
 import { CSVLink } from 'react-csv';
@@ -17,10 +17,9 @@ const ProductionForecastTable = () => {
   const productionData = useSelector((state) => state.dataUpload.data);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
-  // State for total volume calculation by month, year, and volume unit
   const [volumeBreakdown, setVolumeBreakdown] = useState({});
 
+  // Fetch production forecast data on component mount
   useEffect(() => {
     fetch('http://127.0.0.1:8000/firebase-api/get-production-forecast/')
       .then((response) => response.json())
@@ -31,13 +30,11 @@ const ProductionForecastTable = () => {
             ...item.data,  
           }));
 
-          // Dispatch the action to update productionData in commodityRiskSlice
+          // Update production data in Redux
           dispatch(setProductionData(mappedData));
 
-          // Also add data to dataUpload slice (if needed for other purposes)
-          mappedData.forEach((item) => {
-            dispatch(addDataUpload(item));
-          });
+          // Add data to Redux store for upload tracking
+          mappedData.forEach((item) => dispatch(addDataUpload(item)));
         }
       })
       .catch((error) => {
@@ -46,6 +43,7 @@ const ProductionForecastTable = () => {
       });
   }, [dispatch]);
 
+  // Handle delete operation from Firestore and Redux
   const handleDelete = (id) => {
     fetch(`http://127.0.0.1:8000/firebase-api/delete-production-forecast/${id}/`, {
       method: 'DELETE',
@@ -65,19 +63,23 @@ const ProductionForecastTable = () => {
     });
   };
 
+  // Open and close the popup for adding a new production row
   const openPopup = () => setIsPopupOpen(true);
   const closePopup = () => setIsPopupOpen(false);
 
-  const handleFileUpload = (e) => {
+  // Handle CSV file upload and validation
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = async () => {
         const rows = reader.result
           .split('\n')
-          .map(row => row.split(',').map(cell => cell.trim())); 
+          .map(row => row.split(',').map(cell => cell.trim()));
 
-        const fileHeaders = rows[0].map(header => header.trim()); 
+        console.log('Parsed Rows:', rows); // Debugging log
+
+        const fileHeaders = rows[0].map(header => header.trim());
         const headerMapping = mapHeaders(fileHeaders);
 
         if (!headerMapping) {
@@ -86,42 +88,51 @@ const ProductionForecastTable = () => {
         }
 
         setErrorMessage('');
-        rows.slice(1).forEach((row) => {
+        const promises = rows.slice(1).map(async (row) => {
           const rowData = {};
           Object.keys(headerMapping).forEach((key) => {
-            rowData[key] = row[headerMapping[key]] || ''; 
+            rowData[key] = row[headerMapping[key]] || '';
           });
 
+          console.log('Row Data:', rowData); // Log the row data before sending
+
+          // Add to Redux store
           dispatch(addDataUpload(rowData));
 
-          fetch('http://127.0.0.1:8000/firebase-api/add-production-row/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(rowData),
-          })
-          .then(response => {
+          // Make async fetch request to Firestore
+          try {
+            const response = await fetch('http://127.0.0.1:8000/firebase-api/add-production-row/', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(rowData),
+            });
+
             if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status}`);
             }
-            return response.json();
-          })
-          .then(data => {
+
+            const data = await response.json();
+            console.log('API Response:', data); // Log API response
             if (data.message === "Data added successfully") {
               console.log('Data successfully posted to Firestore');
+            } else {
+              console.error(`Failed to add row: ${data.message}`);
             }
-          })
-          .catch(error => {
+          } catch (error) {
             console.error("Error posting data:", error);
             setErrorMessage(`Error posting data: ${error.message}`);
-          });
+          }
         });
+
+        // Wait for all fetch requests to finish
+        await Promise.all(promises);
       };
+
       reader.readAsText(file);
     }
   };
 
+  // Map the CSV headers to expected headers for validation
   const mapHeaders = (fileHeaders) => {
     const mapping = {};
     expectedHeaders.forEach((expectedHeader) => {
@@ -135,12 +146,13 @@ const ProductionForecastTable = () => {
     return Object.keys(mapping).length === expectedHeaders.length ? mapping : null;
   };
 
+  // Headers for the CSV download
   const csvHeaders = expectedHeaders.map(header => ({
     label: header,
     key: header.toLowerCase().replace(/ /g, ''),
   }));
 
-// Calculate the volume breakdown by year, month, and volume unit
+  // Calculate the volume breakdown by year, month, and volume units
   useEffect(() => {
     const breakdown = {};
 
@@ -150,7 +162,14 @@ const ProductionForecastTable = () => {
       const volumeUnit = row['Volume Units'];
       const volume = parseFloat(row.Volume);
 
-      if (isNaN(volume)) return; // Skip rows with invalid volume
+      // Debugging log to track which rows are being processed
+      console.log('Processing Row:', row);
+
+      // Add a check for invalid volume or missing fields
+      if (isNaN(volume) || !year || !month || !volumeUnit) {
+        console.log('Skipping Invalid Row:', row);  // Log invalid rows
+        return;
+      }
 
       if (!breakdown[year]) breakdown[year] = {};
       if (!breakdown[year][month]) breakdown[year][month] = {};
@@ -159,6 +178,7 @@ const ProductionForecastTable = () => {
       breakdown[year][month][volumeUnit] += volume;
     });
 
+    console.log('Volume Breakdown:', breakdown); // Debugging log
     setVolumeBreakdown(breakdown);
   }, [productionData]);
 
@@ -222,14 +242,8 @@ const ProductionForecastTable = () => {
           </div>
         ))}
       </div>
-
     </div>
   );
 };
 
 export default ProductionForecastTable;
-
-
-
-
-

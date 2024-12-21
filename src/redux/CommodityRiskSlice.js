@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 // Define the API endpoint
-const API_URL = "https://brent-volatility-predictor.fly.dev/api/brent-crude-data/";
+const API_URL = "http://127.0.0.1:8001/api/brent-crude-data/";
 
 // Thunk to fetch Brent Crude closing price data
 export const fetchBrentCrudePrices = createAsyncThunk(

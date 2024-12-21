@@ -12,7 +12,7 @@ const CommodityComputation = ({ productionForecastData }) => {
 
   useEffect(() => {
     // Fetch volatility data
-    fetch('https://brent-volatility-predictor.fly.dev/volatility?symbol=BZ=F')
+    fetch('http://127.0.0.1:8001/volatility?symbol=BZ=F')
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -33,7 +33,7 @@ const CommodityComputation = ({ productionForecastData }) => {
       });
 
     // Fetch latest market price data
-    fetch('https://brent-volatility-predictor.fly.dev/api/brent-crude-data/')
+    fetch('http://127.0.0.1:8001/api/brent-crude-data/')
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
