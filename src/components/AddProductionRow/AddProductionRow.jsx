@@ -1,23 +1,27 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addDataUpload } from '../../redux/ProductionDataUploadSlice';
-import { Button, FormContainer, CloseButton, Overlay, Box, FormRow, SelectInput, InputField } from './AddProductionRow.styles';
+import {
+  Button, FormContainer, CloseButton, Overlay, Box, FormRow, SelectInput, InputField
+} from './AddProductionRow.styles';
 
 const AddProductionRow = ({ closePopup }) => {
   const dispatch = useDispatch();
+
+  // Initial form data aligned with expectedHeaders
   const [formData, setFormData] = useState({
-    forecastPeriod: '',
-    region: '',
-    country: '',
-    asset: '',
-    currentStatus: '',
-    productType: '',
-    breakevenPrice: '',
-    dueMonth: '',
-    volumeUnits: '',
-    year: '',
-    currency: '',
-    volume: '',  
+    Region: '',
+    Country: '',
+    Asset: '',
+    "Reservoir Status": '',
+    "Product Type": '',
+    CCY: '',
+    "Breakeven Price": '',
+    Volume: '',
+    "Volume Units": '',
+    "Forecast Period": '',
+    "Due Month": '',
+    Year: '',
   });
 
   const handleChange = (e) => {
@@ -27,69 +31,83 @@ const AddProductionRow = ({ closePopup }) => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Dispatch to Redux store
-    dispatch(addDataUpload(formData));
-
-    // Reset form data after submit
-    setFormData({
-      forecastPeriod: '',
-      region: '',
-      country: '',
-      asset: '',
-      currentStatus: '',
-      productType: '',
-      breakevenPrice: '',
-      dueMonth: '',
-      volumeUnits: '',
-      year: '',
-      currency: '',
-      volume: '',  
-    });
-
-    // Close the popup after submission
-    closePopup();
-  };
-
   const handleProductTypeChange = (e) => {
     const selectedProductType = e.target.value;
     let volumeUnit = '';
-    if (selectedProductType === 'crudeOil') {
+    if (selectedProductType === 'Crude Oil') {
       volumeUnit = 'BOE';
     } else if (selectedProductType === 'LNG') {
       volumeUnit = 'MMBtu';
     }
     setFormData({
       ...formData,
-      productType: selectedProductType,
-      volumeUnits: volumeUnit,
+      "Product Type": selectedProductType,
+      "Volume Units": volumeUnit,
     });
   };
 
-  const handleVolumeChange = (e) => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+  
+    // Log form data for debugging
+    console.log("Submitted Data:", formData);
+  
+    // Dispatch the data to Redux
+    dispatch(addDataUpload(formData)); // Removed the array wrapper
+  
+    fetch('http://127.0.0.1:8000/firebase-api/add-production-row/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData), // Send formData directly
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Production Forecast added to Firestore:', data);
+      })
+      .catch((error) => {
+        console.error('Error posting Production Forecast to Firestore:', error);
+        alert('Error adding Production Forecast to Firestore');
+      });
+  
+    // Reset form after submission
     setFormData({
-      ...formData,
-      volume: e.target.value,
+      Region: '',
+      Country: '',
+      Asset: '',
+      "Reservoir Status": '',
+      "Product Type": '',
+      CCY: '',
+      "Breakeven Price": '',
+      Volume: '',
+      "Volume Units": '',
+      "Forecast Period": '',
+      "Due Month": '',
+      Year: '',
     });
+  
+    // Close the popup
+    closePopup();
   };
+  
 
   return (
     <Overlay>
       <FormContainer>
         <CloseButton onClick={closePopup}>X</CloseButton>
         <form onSubmit={handleSubmit}>
+          {/* Region and Country Selection */}
           <Box>
             <FormRow>
-              <SelectInput name="region" value={formData.region} onChange={handleChange}>
+              <SelectInput name="Region" value={formData.Region} onChange={handleChange}>
                 <option value="" disabled>Region</option>
                 <option value="Americas">Americas</option>
                 <option value="EMEA">EMEA</option>
                 <option value="APAC">APAC</option>
                 <option value="Russia/CIS">Russia/CIS</option>
               </SelectInput>
-              <SelectInput name="country" value={formData.country} onChange={handleChange}>
+              <SelectInput name="Country" value={formData.Country} onChange={handleChange}>
                 <option value="" disabled>Country</option>
                 <option value="US">US</option>
                 <option value="Mexico">Mexico</option>
@@ -97,95 +115,96 @@ const AddProductionRow = ({ closePopup }) => {
                 <option value="Brazil">Brazil</option>
                 <option value="Kazakhstan">Kazakhstan</option>
               </SelectInput>
+            </FormRow>
+          </Box>
+
+          {/* Asset and Reservoir Status */}
+          <Box>
+            <FormRow>
               <InputField
-                name="asset"
-                value={formData.asset}
+                name="Asset"
+                value={formData.Asset}
                 onChange={handleChange}
                 maxLength={20}
-                placeholder="Asset Name"
+                placeholder="Asset"
               />
-              <SelectInput name="currentStatus" value={formData.currentStatus} onChange={handleChange}>
+              <SelectInput name="Reservoir Status" value={formData["Reservoir Status"]} onChange={handleChange}>
                 <option value="" disabled>Reservoir Status</option>
-                <option value="new">New</option>
-                <option value="midlife">Midlife</option>
-                <option value="depleting">Depleting</option>
+                <option value="New">New</option>
+                <option value="Midlife">Midlife</option>
+                <option value="Depleting">Depleting</option>
               </SelectInput>
             </FormRow>
           </Box>
 
+          {/* Product Type and Volume */}
           <Box>
             <FormRow>
-              <SelectInput name="productType" value={formData.productType} onChange={handleProductTypeChange}>
-                <option value="">Product Type</option>
-                <option value="crudeOil">Crude Oil</option>
+              <SelectInput name="Product Type" value={formData["Product Type"]} onChange={handleProductTypeChange}>
+                <option value="" disabled>Product Type</option>
+                <option value="Crude Oil">Crude Oil</option>
                 <option value="LNG">LNG</option>
               </SelectInput>
               <InputField
-                name="volume"
+                name="Volume"
                 type="number"
                 step="0.01"
-                value={formData.volume}
-                onChange={handleVolumeChange}
+                value={formData.Volume}
+                onChange={handleChange}
                 placeholder="Volume"
               />
               <InputField
-                name="volumeUnits"
-                value={formData.volumeUnits}
+                name="Volume Units"
+                value={formData["Volume Units"]}
                 readOnly
                 placeholder="Volume Units"
               />
             </FormRow>
           </Box>
 
+          {/* CCY and Breakeven Price */}
           <Box>
             <FormRow>
-              <SelectInput name="currency" value={formData.currency} onChange={handleChange}>
+              <SelectInput name="CCY" value={formData.CCY} onChange={handleChange}>
                 <option value="" disabled>CCY</option>
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
                 <option value="GBP">GBP</option>
               </SelectInput>
               <InputField
-                name="breakevenPrice"
-                value={formData.breakevenPrice}
+                name="Breakeven Price"
+                value={formData["Breakeven Price"]}
                 onChange={handleChange}
                 placeholder="Breakeven Price"
               />
             </FormRow>
           </Box>
 
+          {/* Forecast Period, Due Month, and Year */}
           <Box>
             <FormRow>
-              <SelectInput name="forecastPeriod" value={formData.forecastPeriod} onChange={handleChange}>
+              <SelectInput name="Forecast Period" value={formData["Forecast Period"]} onChange={handleChange}>
                 <option value="" disabled>Forecast Period</option>
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="annual">Annual</option>
+                <option value="Monthly">Monthly</option>
+                <option value="Quarterly">Quarterly</option>
+                <option value="Annual">Annual</option>
               </SelectInput>
-              <SelectInput name="dueMonth" value={formData.dueMonth} onChange={handleChange}>
+              <SelectInput name="Due Month" value={formData["Due Month"]} onChange={handleChange}>
                 <option value="" disabled>Due Month</option>
-                <option value="Jan">Jan</option>
-                <option value="Feb">Feb</option>
-                <option value="Mar">Mar</option>
-                <option value="Apr">Apr</option>
-                <option value="May">May</option>
-                <option value="Jun">Jun</option>
-                <option value="Jul">Jul</option>
-                <option value="Aug">Aug</option>
-                <option value="Sep">Sep</option>
-                <option value="Oct">Oct</option>
-                <option value="Nov">Nov</option>
-                <option value="Dec">Dec</option>
+                {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((month) => (
+                  <option key={month} value={month}>{month}</option>
+                ))}
               </SelectInput>
-              <SelectInput name="year" value={formData.year} onChange={handleChange}>
+              <SelectInput name="Year" value={formData.Year} onChange={handleChange}>
                 <option value="" disabled>Year</option>
-                {[2025, 2026, 2027, 2028, 2029, 2030].map(year => (
+                {[2025, 2026, 2027, 2028, 2029, 2030].map((year) => (
                   <option key={year} value={year}>{year}</option>
                 ))}
               </SelectInput>
             </FormRow>
           </Box>
 
+          {/* Submit Button */}
           <Button type="submit">Add Row</Button>
         </form>
       </FormContainer>
@@ -194,14 +213,3 @@ const AddProductionRow = ({ closePopup }) => {
 };
 
 export default AddProductionRow;
-
-
-
-
-
-
-
-
-
-
-
