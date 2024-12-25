@@ -19,6 +19,23 @@ const ProductionForecastTable = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [volumeBreakdown, setVolumeBreakdown] = useState({});
 
+  // Function to calculate the breakdown
+  const calculateVolumeBreakdown = (data) => {
+    const breakdown = data.reduce((acc, row) => {
+      const { Volume, 'Volume Units': volumeUnits, 'Due Month': dueMonth, Year } = row;
+      
+      if (volumeUnits === 'BOE') {
+        const monthYear = `${dueMonth}-${Year}`;
+        if (!acc[monthYear]) {
+          acc[monthYear] = 0;
+        }
+        acc[monthYear] += parseFloat(Volume || 0);
+      }
+      return acc;
+    }, {});
+    return breakdown;
+  };
+
   // Fetch production forecast data on component mount
   useEffect(() => {
     fetch('http://127.0.0.1:8000/firebase-api/get-production-forecast/')
@@ -33,6 +50,10 @@ const ProductionForecastTable = () => {
           // Update production data in Redux
           dispatch(setProductionData(mappedData));
           dispatch(setDataFromBackend(mappedData));
+
+          // Calculate volume breakdown
+          const breakdown = calculateVolumeBreakdown(mappedData);
+          setVolumeBreakdown(breakdown);
         }
       })
       .catch((error) => {
@@ -155,6 +176,25 @@ const ProductionForecastTable = () => {
               <TableCell>
                 <Button onClick={() => handleDelete(row.id)}>Delete</Button>
               </TableCell>
+            </TableRow>
+          ))}
+        </tbody>
+      </Table>
+
+      {/* Volume Breakdown Table */}
+      <h2>Volume Breakdown by Month-Year</h2>
+      <Table>
+        <thead>
+          <TableRow>
+            <TableHeader>Month-Year</TableHeader>
+            <TableHeader>Volume (BOE)</TableHeader>
+          </TableRow>
+        </thead>
+        <tbody>
+          {Object.keys(volumeBreakdown).map((monthYear) => (
+            <TableRow key={monthYear}>
+              <TableCell>{monthYear}</TableCell>
+              <TableCell>{volumeBreakdown[monthYear]}</TableCell>
             </TableRow>
           ))}
         </tbody>

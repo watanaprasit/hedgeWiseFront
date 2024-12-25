@@ -14,3 +14,7 @@
 - **Frontend**: React.js, Redux Toolkit, Axios, Styled Components
 - **Backend**: Django API serving currency data
 
+## Tech Stack
+
+- **Frontend**: React.js, Redux Toolkit, Axios, Styled Components
+- **Backend**: Django API serving currency data
