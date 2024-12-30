@@ -19,7 +19,6 @@ const ProductionForecastTable = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [volumeBreakdown, setVolumeBreakdown] = useState({});
 
-  // Function to calculate the breakdown
   const calculateVolumeBreakdown = (data) => {
     const breakdown = data.reduce((acc, row) => {
       const { Volume, 'Volume Units': volumeUnits, 'Due Month': dueMonth, Year } = row;
@@ -36,7 +35,6 @@ const ProductionForecastTable = () => {
     return breakdown;
   };
 
-  // Fetch production forecast data on component mount
   useEffect(() => {
     fetch('http://127.0.0.1:8000/firebase-api/get-production-forecast/')
       .then((response) => response.json())
@@ -181,7 +179,6 @@ const ProductionForecastTable = () => {
         </tbody>
       </Table>
 
-      {/* Volume Breakdown Table */}
       <h2>Volume Breakdown by Month-Year</h2>
       <Table>
         <thead>
