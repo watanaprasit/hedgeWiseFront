@@ -85,13 +85,13 @@ const CommodityComputation = ({ productionForecastData }) => {
 
       {/* Volatility Data */}
       <div>
-        <SectionHeader>Next 7 Day Volatility</SectionHeader>
+        <SectionHeader>Next 7 Day Projected Volatility</SectionHeader>
         <ComputationText>{volatilityData ? `${(volatilityData * 100).toFixed(2)}%` : "Loading..."}</ComputationText>
       </div>
 
       {/* Latest Market Price */}
       <div>
-        <SectionHeader>Latest Market Price</SectionHeader>
+        <SectionHeader>Latest Market Price / Previous Close</SectionHeader>
         <ComputationText>{latestPrice ? `$${parseFloat(latestPrice).toFixed(3)}` : "Loading..."}</ComputationText>
       </div>
 

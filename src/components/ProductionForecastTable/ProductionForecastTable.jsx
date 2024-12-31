@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addDataUpload, deleteDataUpload, setDataFromBackend } from '../../redux/ProductionDataUploadSlice';
 import { setProductionData } from '../../redux/CommodityRiskSlice'; 
-import { Table, TableHeader, TableRow, TableCell, Button } from './ProductionForecastTable.styles';
+import { Table, TableHeader, TableRow, TableCell, Button, ScrollableTableContainer, RightAlignedContainer } from './ProductionForecastTable.styles';
 import AddProductionRow from '../AddProductionRow/AddProductionRow';
 import { CSVLink } from 'react-csv';
 
@@ -11,6 +11,9 @@ const expectedHeaders = [
   "CCY", "Breakeven Price", "Volume", "Volume Units", "Forecast Period", 
   "Due Month", "Year"
 ];
+
+
+const BASE_URL = 'http://127.0.0.1:8000'; 
 
 const ProductionForecastTable = () => {
   const dispatch = useDispatch();
@@ -21,14 +24,19 @@ const ProductionForecastTable = () => {
 
   const calculateVolumeBreakdown = (data) => {
     const breakdown = data.reduce((acc, row) => {
-      const { Volume, 'Volume Units': volumeUnits, 'Due Month': dueMonth, Year } = row;
-      
+      const { Volume, 'Volume Units': volumeUnits, 'Due Month': dueMonth, Year, 'Breakeven Price': breakevenPrice } = row;
+  
       if (volumeUnits === 'BOE') {
         const monthYear = `${dueMonth}-${Year}`;
         if (!acc[monthYear]) {
-          acc[monthYear] = 0;
+          acc[monthYear] = { volume: 0, breakevenCost: 0 };
         }
-        acc[monthYear] += parseFloat(Volume || 0);
+        
+        // Update volume breakdown
+        acc[monthYear].volume += parseFloat(Volume || 0);
+  
+        // Update breakeven cost (Breakeven Price * Volume)
+        acc[monthYear].breakevenCost += (parseFloat(breakevenPrice || 0) * parseFloat(Volume || 0));
       }
       return acc;
     }, {});
@@ -36,7 +44,7 @@ const ProductionForecastTable = () => {
   };
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/firebase-api/get-production-forecast/')
+    fetch(`${BASE_URL}/firebase-api/get-production-forecast/`)
       .then((response) => response.json())
       .then((data) => {
         if (data && Array.isArray(data)) {
@@ -61,7 +69,7 @@ const ProductionForecastTable = () => {
   }, [dispatch]);
 
   const handleDelete = (id) => {
-    fetch(`http://127.0.0.1:8000/firebase-api/delete-production-forecast/${id}/`, {
+    fetch(`${BASE_URL}/firebase-api/delete-production-forecast/${id}/`, {
       method: 'DELETE',
     })
     .then((response) => response.json())
@@ -106,7 +114,7 @@ const ProductionForecastTable = () => {
         });
 
         try {
-          const response = await fetch('http://127.0.0.1:8000/firebase-api/add-production-row/', {
+          const response = await fetch(`${BASE_URL}/firebase-api/add-production-row/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(rowData),
@@ -144,17 +152,22 @@ const ProductionForecastTable = () => {
 
   return (
     <div>
-      <input type="file" accept=".csv" onChange={handleFileUpload} />
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-      <Button onClick={openPopup}>Add Row</Button>
+      <RightAlignedContainer>
+        <Button onClick={openPopup}>Add Row</Button>
+        <input type="file" accept=".csv" onChange={handleFileUpload} />
+        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
 
-      {isPopupOpen && <AddProductionRow closePopup={closePopup} />}
 
-      <CSVLink data={productionData} headers={csvHeaders} filename="production_data.csv">
-        <Button>Download Sample CSV</Button>
-      </CSVLink>
+        {isPopupOpen && <AddProductionRow closePopup={closePopup} />}
 
-      <Table>
+        <CSVLink data={productionData} headers={csvHeaders} filename="production_data.csv">
+          <Button>Download Sample CSV</Button>
+        </CSVLink>
+      </RightAlignedContainer>
+
+
+    <ScrollableTableContainer>
+    <Table>
         <thead>
           <TableRow>
             {expectedHeaders.map(header => (
@@ -178,24 +191,40 @@ const ProductionForecastTable = () => {
           ))}
         </tbody>
       </Table>
+    </ScrollableTableContainer>
+ 
 
-      <h2>Volume Breakdown by Month-Year</h2>
+    <h2>Production Volume Breakdown</h2>
       <Table>
         <thead>
           <TableRow>
             <TableHeader>Month-Year</TableHeader>
             <TableHeader>Volume (BOE)</TableHeader>
+            <TableHeader>Breakeven Cost</TableHeader>
           </TableRow>
         </thead>
         <tbody>
-          {Object.keys(volumeBreakdown).map((monthYear) => (
-            <TableRow key={monthYear}>
-              <TableCell>{monthYear}</TableCell>
-              <TableCell>{volumeBreakdown[monthYear]}</TableCell>
-            </TableRow>
-          ))}
+          {Object.keys(volumeBreakdown)
+            .sort((a, b) => {
+              // Convert monthYear string (e.g., 'Dec-2025') into Date object for comparison
+              const [monthA, yearA] = a.split('-');
+              const [monthB, yearB] = b.split('-');
+
+              const dateA = new Date(`${monthA} 1, ${yearA}`);
+              const dateB = new Date(`${monthB} 1, ${yearB}`);
+
+              return dateA - dateB; // Sort from earliest to latest
+            })
+            .map((monthYear) => (
+              <TableRow key={monthYear}>
+                <TableCell>{monthYear}</TableCell>
+                <TableCell>{volumeBreakdown[monthYear].volume.toLocaleString()}</TableCell>
+                <TableCell>{volumeBreakdown[monthYear].breakevenCost.toLocaleString()}</TableCell>
+              </TableRow>
+            ))}
         </tbody>
       </Table>
+
     </div>
   );
 };

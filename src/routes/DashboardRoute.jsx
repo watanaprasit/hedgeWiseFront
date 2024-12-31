@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFXRatesThunk } from '../../redux/FXRiskSlice'; // Import the correct thunk
-import Dashboard from '../Dashboard/Dashboard'; // Make sure the path is correct for the Dashboard component
+import Dashboard from '../Dashboard/Dashboard'; 
 
 const DashboardRoute = () => {
   const dispatch = useDispatch();
