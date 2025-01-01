@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFXRatesThunk } from '../redux/FXRiskSlice'; // Action to fetch FX rates
 import FXRiskTable from '../components/FXRiskTable/FXRiskTable'; 
-import { PriceBoxContainer, PriceBox } from '../components/FXRiskTable/FXRiskTable.styles'; 
 import CashflowProjectionTable from '../components/CashflowProjectionTable/CashflowProjectionTable';
 import ForwardContractTable from '../components/ForwardContractTable/ForwardContractTable';
 import FXTabulation from '../components/FXTabulation/FXTabulation';
@@ -32,6 +31,17 @@ const FXRiskRoute = () => {
   return (
     <div>
 
+            
+    {status === 'loading' && <p>Loading FX Rates...</p>}
+
+    {status === 'succeeded' && latestFXRatesArray.length > 0 ? (
+      <FXRiskTable fxRates={latestFXRatesArray} /> 
+    ) : (
+      <p>No FX rates available</p> 
+    )}
+
+    {status === 'failed' && <p>Error: {error}</p>} 
+
       <CashflowProjectionTable />
 
       <FXTabulationVisuals />
@@ -39,34 +49,8 @@ const FXRiskRoute = () => {
       <FXTabulation />
 
       <ForwardContractTable />
-      
-      {status === 'loading' && <p>Loading FX Rates...</p>}
-      
-      {status === 'succeeded' && latestFXRatesArray.length > 0 ? (
-        <div>
-          {/* Display open and close prices in boxes for each currency pair */}
-          {latestFXRatesArray.map((rate) => (
-            <div key={rate.currency_pair}>
-              <h3>{rate.currency_pair}</h3>
-              <PriceBoxContainer>
-                <PriceBox>
-                  Open: {rate.open_price}
-                </PriceBox>
-                <PriceBox>
-                  Close: {rate.close_price}
-                </PriceBox>
-              </PriceBoxContainer>
-            </div>
-          ))}
-          
-          <FXRiskTable fxRates={latestFXRatesArray} /> {/* Pass the latest FX rates to the table */}
-        </div>
-      ) : (
-        <p>No FX rates available</p>
-      )}
 
-      {status === 'failed' && <p>Error: {error}</p>}
-    </div>
+          </div>
   );
 };
 

@@ -7,7 +7,20 @@ export const fetchFXRatesThunk = createAsyncThunk(
   async () => {
     try {
       const response = await axios.get('http://127.0.0.1:8000/api/currency-data/'); // Correct endpoint
-      return Array.isArray(response.data) ? response.data : []; // Ensure it returns an array
+      // Ensure the data is an array and return only the latest close prices per currency pair
+      if (Array.isArray(response.data)) {
+        const latestRates = response.data.reduce((acc, current) => {
+          const existingPair = acc.find(
+            (item) => item.currency_pair === current.currency_pair
+          );
+          if (!existingPair) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+        return latestRates;
+      }
+      return [];
     } catch (error) {
       console.error('Error fetching FX rates:', error);
       throw error;
@@ -31,7 +44,7 @@ const FXRiskSlice = createSlice({
       })
       .addCase(fetchFXRatesThunk.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.fxRates = action.payload; // Ensure fxRates is an array
+        state.fxRates = action.payload; // Ensure fxRates is an array of the most recent values
       })
       .addCase(fetchFXRatesThunk.rejected, (state, action) => {
         state.status = 'failed';
@@ -41,11 +54,3 @@ const FXRiskSlice = createSlice({
 });
 
 export default FXRiskSlice.reducer;
-
-
-
-
-
-
-
-

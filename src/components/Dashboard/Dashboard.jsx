@@ -12,6 +12,9 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
 
+  // State for FX rates data
+  const [fxRates, setFxRates] = useState([]);
+
   // Fetching data from the Redux store
   const { sumContractValues, weightedAveragePrice } = useSelector((state) => state.dataUpload);
 
@@ -42,6 +45,21 @@ const Dashboard = () => {
       .finally(() => setLoading(false));
   }, [dispatch]);
 
+  // Fetch FX rates from backend API
+  useEffect(() => {
+    fetch(`${BASE_URL}/api/currency-data/`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data && Array.isArray(data)) {
+          setFxRates(data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching FX data:", error);
+        setErrorMessage("Error fetching FX data");
+      });
+  }, []);
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -69,9 +87,23 @@ const Dashboard = () => {
             </RiskCard>
           </RiskSummary>
         </RiskCard>
-        
-        {/* Placeholder for future cards (FX & Geopolitical) */}
-        {/* You can add more RiskCard components for FX and Geopolitical risks here */}
+
+        {/* FX Rates Overview Card */}
+        <RiskCard>
+          <RiskTitle>FX Rates Overview</RiskTitle>
+          <RiskSummary>
+            {fxRates.length > 0 ? (
+              fxRates.map((rate, index) => (
+                <RiskCard key={index}>
+                  <RiskTitle>{rate.currency_pair}</RiskTitle>
+                  <RiskValue>Closing Price: {rate.close_price}</RiskValue>
+                </RiskCard>
+              ))
+            ) : (
+              <RiskValue>No FX data available</RiskValue>
+            )}
+          </RiskSummary>
+        </RiskCard>
       </CardContainer>
     </DashboardContainer>
   );
