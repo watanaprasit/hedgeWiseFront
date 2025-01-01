@@ -7,22 +7,23 @@ const AddForwardContractRow = ({ closePopup }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     CcyPair: '',
-    HedgedAmt: '',    // Changed to HedgedAmt
+    HedgedAmt: '',    
     Direction: '',
     ForwardRate: '',
-    USDAmt: '',       // Changed to USDAmt
+    USDAmt: '',       
     MaturityMonth: '',
     MaturityYear: ''
   });
+
+  const BASE_URL = 'http://127.0.0.1:8000';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (name === 'HedgedAmt' || name === 'ForwardRate' || name === 'USDAmt') {
-      // Ensure no decimal places if needed
       setFormData({
         ...formData,
-        [name]: value.replace(/[^\d.]/g, '') // Only allow numeric characters and decimal point
+        [name]: value.replace(/[^\d.]/g, '') 
       });
     } else {
       setFormData({
@@ -55,7 +56,7 @@ const AddForwardContractRow = ({ closePopup }) => {
 
     dispatch(addForwardContract(newForwardContract));
 
-    fetch('http://127.0.0.1:8000/firebase-api/add-forward-contract/', {
+    fetch(`${BASE_URL}/firebase-api/add-forward-contract/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -98,9 +99,9 @@ const AddForwardContractRow = ({ closePopup }) => {
                 required
               >
                 <option value="" disabled>Currency Pair</option>
-                <option value="USD/EUR">USD/EUR</option>
-                <option value="USD/GBP">USD/GBP</option>
-                <option value="EUR/GBP">EUR/GBP</option>
+                <option value="USD/EUR">EUR/USD</option>
+                <option value="USD/GBP">GBP/USD</option>
+                <option value="EUR/GBP">USD/JPY</option>
               </SelectInput>
               <InputField
                 name="HedgedAmt"   // Updated field name

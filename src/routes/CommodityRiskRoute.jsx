@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { fetchBrentCrudePrices } from '../redux/CommodityRiskSlice';
 import ProductionForecastTable from '../components/ProductionForecastTable/ProductionForecastTable'; 
 import CommodityComputation from '../components/CommodityComputation/CommodityComputation'; 
+import FuturesContractTable from '../components/FuturesContractTable/FuturesContractTable';
 
 const CommodityRiskRoute = () => {
   const dispatch = useDispatch();
@@ -14,6 +15,8 @@ const CommodityRiskRoute = () => {
   return (
     <div>
       <ProductionForecastTable />
+
+      <FuturesContractTable />
       
       <CommodityComputation />
       

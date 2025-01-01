@@ -4,6 +4,7 @@ const productionDataUploadSlice = createSlice({
   name: 'dataUpload',
   initialState: {
     data: [],
+    futuresContracts: [],
   },
   reducers: {
     addDataUpload: (state, action) => {
@@ -29,8 +30,35 @@ const productionDataUploadSlice = createSlice({
       // Clear all data from the state
       state.data = [];
     },
+
+    addFuturesContracts: (state, action) => {
+      const newContracts = Array.isArray(action.payload) ? action.payload : [action.payload];
+      console.log("New futures contracts being added to Redux:", newContracts);
+      state.futuresContracts = [...state.futuresContracts, ...newContracts];
+    },
+
+    deleteFuturesContract: (state, action) => {
+      state.futuresContracts = state.futuresContracts.filter((contract) => contract.id !== action.payload);
+    },
+
+    setFuturesContractsFromBackend: (state, action) => {
+      state.futuresContracts = action.payload;
+    },
+
+    clearFuturesContracts: (state) => {
+      state.futuresContracts = [];
+    },
   },
 });
 
-export const { addDataUpload, deleteDataUpload, setDataFromBackend, clearDataUpload } = productionDataUploadSlice.actions;
+export const { 
+  addDataUpload, 
+  deleteDataUpload, 
+  setDataFromBackend, 
+  clearDataUpload,
+  addFuturesContracts,
+  deleteFuturesContract,
+  setFuturesContractsFromBackend,
+  clearFuturesContracts,
+ } = productionDataUploadSlice.actions;
 export default productionDataUploadSlice.reducer;

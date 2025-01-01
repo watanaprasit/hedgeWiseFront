@@ -16,6 +16,7 @@ const expectedHeaders = [
   "Maturity Year"
 ];
 
+const BASE_URL = 'http://127.0.0.1:8000';
 
 const ForwardContractTable = () => {
   const dispatch = useDispatch();
@@ -26,7 +27,7 @@ const ForwardContractTable = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch('http://127.0.0.1:8000/firebase-api/get-forward-contracts/')
+    fetch(`${BASE_URL}/firebase-api/get-forward-contracts/`)
       .then((response) => response.json())
       .then((data) => {
         if (data && Array.isArray(data)) {
@@ -47,7 +48,7 @@ const ForwardContractTable = () => {
   const handleDelete = (id) => {
     dispatch(deleteForwardContract(id));
   
-    fetch(`http://127.0.0.1:8000/firebase-api/delete-forward-contract/${id}/`, {
+    fetch(`${BASE_URL}/firebase-api/delete-forward-contract/${id}/`, {
       method: 'DELETE',
     })
     .then(response => response.json())
@@ -107,7 +108,7 @@ const ForwardContractTable = () => {
             dispatch(addForwardContract(item));
           });
 
-          fetch('http://127.0.0.1:8000/firebase-api/add-forward-contract/', {
+          fetch(`${BASE_URL}/firebase-api/add-forward-contract/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -130,18 +131,24 @@ const ForwardContractTable = () => {
   };
 
   const formatAmount = (amount) => {
-    const parsedAmount = parseFloat(amount.replace(/,/g, ''));
+    // Ensure the amount is a valid string and not undefined/null
+    if (typeof amount === 'string') {
+      const parsedAmount = parseFloat(amount.replace(/,/g, ''));
   
-    if (isNaN(parsedAmount)) return '-';
+      if (isNaN(parsedAmount)) return '-'; // Handle non-numeric values
   
-    const amountInThousands = parsedAmount / 1000;
-    const roundedValue = Math.round(amountInThousands);
-    const formattedValue = Math.abs(roundedValue).toLocaleString();
+      const amountInThousands = parsedAmount / 1000;
+      const roundedValue = Math.round(amountInThousands);
+      const formattedValue = Math.abs(roundedValue).toLocaleString();
   
-    return amountInThousands < 0
-      ? `(${formattedValue})`
-      : formattedValue;
+      return amountInThousands < 0
+        ? `(${formattedValue})`
+        : formattedValue;
+    }
+    // Return a fallback if the amount is invalid (undefined, null, etc.)
+    return '-';
   };
+  
   
   
   
