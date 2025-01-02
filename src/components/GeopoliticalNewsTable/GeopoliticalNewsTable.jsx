@@ -8,6 +8,7 @@ const GeopoliticalNewsTable = ({ newsData }) => {
 
   return (
     <TableContainer>
+      <h2>Geopolitical News</h2>
       <StyledTable>
         <thead>
           <tr>
@@ -19,11 +20,15 @@ const GeopoliticalNewsTable = ({ newsData }) => {
         </thead>
         <tbody>
           {newsData.map((article, index) => (
-            <TableRow key={index}>
-              <TableCell>{article.title}</TableCell>
-              <TableCell>{article.source}</TableCell>
-              <TableCell>{new Date(article.published_at).toLocaleString()}</TableCell>
-              <TableCell><a href={article.url} target="_blank" rel="noopener noreferrer">Read More</a></TableCell>
+            <TableRow key={article.id || index}>
+              <TableCell>{article.title || 'No Title'}</TableCell>
+              <TableCell>{article.source?.name || 'Unknown Source'}</TableCell> {/* Access the 'name' of source */}
+              <TableCell>{article.publishedAt ? new Date(article.publishedAt).toLocaleString() : 'No Date'}</TableCell>
+              <TableCell>
+                <a href={article.url || '#'} target="_blank" rel="noopener noreferrer">
+                  Read More
+                </a>
+              </TableCell>
             </TableRow>
           ))}
         </tbody>

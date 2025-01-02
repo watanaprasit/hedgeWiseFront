@@ -10,7 +10,6 @@ export const assetLocationSlice = createSlice({
       const newAsset = action.payload;
       const exists = state.data.some(item => item.id === newAsset.id);
       if (!exists) {
-        console.log("Adding new asset to Redux:", newAsset);  // Log to verify dispatch
         state.data.push(newAsset);  // Ensure the data is being added to the state
       }
     },

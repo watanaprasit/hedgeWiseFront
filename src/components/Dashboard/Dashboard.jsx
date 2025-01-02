@@ -116,7 +116,7 @@ const Dashboard = () => {
 
         {/* FX Rates Overview Card */}
         <RiskCard>
-          <RiskTitle>FX Rates Overview</RiskTitle>
+          <RiskTitle>FX Hedging Overview</RiskTitle>
           <RiskSummary>
             {/* Forward Contracts Overview */}
             <RiskCard>

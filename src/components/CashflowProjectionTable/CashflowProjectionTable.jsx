@@ -172,6 +172,8 @@ const CashflowProjectionTable = () => {
 
   return (
     <div>
+
+      <h2>Cashflow Projections</h2>
       <Button onClick={() => setIsPopupOpen(true)}>Add Row</Button>
       {isPopupOpen && !editingRow && <AddCashflowProjectionRow closePopup={() => setIsPopupOpen(false)} />}
       <input type="file" accept=".csv" onChange={handleCSVUpload} />

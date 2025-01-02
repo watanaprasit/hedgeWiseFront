@@ -4,6 +4,7 @@ import { fetchGeopoliticalNews } from '../redux/GeopoliticalNewsSlice';
 import GeopoliticalNewsTable from '../components/GeopoliticalNewsTable/GeopoliticalNewsTable';
 import AssetLocationTable from '../components/AssetLocationTable/AssetLocationTable';
 import AssetLocationMap from '../components/AssetLocationMap/AssetLocationMap';
+import PRITable from '../components/PRITable/PRITable';
 
 const GeopoliticalNewsRoute = () => {
   const dispatch = useDispatch();
@@ -17,10 +18,7 @@ const GeopoliticalNewsRoute = () => {
 
   return (
     <div>
-      <AssetLocationTable />
 
-      <AssetLocationMap />
-      
       {status === 'loading' && <p>Loading geopolitical news...</p>}
 
       {status === 'succeeded' && newsData.length > 0 ? (
@@ -32,6 +30,12 @@ const GeopoliticalNewsRoute = () => {
       )}
 
       {status === 'failed' && <p>Error: {error}</p>}
+
+      <AssetLocationMap />
+      
+      <AssetLocationTable />
+
+      <PRITable />
 
 
     </div>

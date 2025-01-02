@@ -123,6 +123,7 @@ const AssetLocationTable = () => {
 
   return (
     <div>
+      <h2>Asset Locations</h2>
       <Button onClick={() => setIsPopupOpen(true)}>Add Row</Button>
       {isPopupOpen && <AddAssetLocationRow closePopup={() => setIsPopupOpen(false)} />}
       <input type="file" accept=".csv" onChange={handleCSVUpload} />
