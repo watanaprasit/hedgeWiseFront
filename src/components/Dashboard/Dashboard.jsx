@@ -28,7 +28,6 @@ const Dashboard = () => {
   const totalUSD = useSelector(selectTotalUSD);  // Fetch the total USD amount
   const amtCoverageSum = useSelector(selectAmtCoverageSum); // Fetch amtCoverageSum from Redux store
 
-
   useEffect(() => {
     setLoading(true);
     fetch(`${BASE_URL}/firebase-api/get-PRIs/`)
@@ -51,11 +50,8 @@ const Dashboard = () => {
       })
       .finally(() => setLoading(false));
   }, [dispatch]);
-  
-  
-  
 
-  // Fetch forward contracts from backend API and store in Redux
+  // Fetching forward contracts from backend API
   useEffect(() => {
     setLoading(true);
     fetch(`${BASE_URL}/firebase-api/get-forward-contracts/`)
@@ -66,7 +62,6 @@ const Dashboard = () => {
             id: item.id,
             ...item.data,
           }));
-          // Dispatch action to store the entire data in Redux at once
           dispatch(setForwardContractDataFromBackend(mappedData));
         }
       })
@@ -77,19 +72,17 @@ const Dashboard = () => {
       .finally(() => setLoading(false));
   }, [dispatch]);
 
-  // Fetch futures contracts from backend API
+  // Fetching futures contracts from backend API
   useEffect(() => {
     setLoading(true);
     fetch(`${BASE_URL}/firebase-api/get-futures-contracts/`)
       .then((response) => response.json())
       .then((data) => {
         if (data && Array.isArray(data)) {
-          // Map the data to match your required format
           const mappedData = data.map((item) => ({
             id: item.id,
             ...item.data,
           }));
-          // Dispatch action to store the data in Redux
           dispatch(setFuturesContractsFromBackend(mappedData));
         }
       })
@@ -100,7 +93,7 @@ const Dashboard = () => {
       .finally(() => setLoading(false));
   }, [dispatch]);
 
-  // Fetch FX rates from backend API
+  // Fetching FX rates from backend API
   useEffect(() => {
     fetch(`${BASE_URL}/api/currency-data/`)
       .then((response) => response.json())
