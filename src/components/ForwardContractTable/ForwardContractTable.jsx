@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addForwardContract, deleteForwardContract } from '../../redux/ForwardContractSlice';
+import { addForwardContract, deleteForwardContract, resetForwardContracts } from '../../redux/ForwardContractSlice';
 import { Table, TableHeader, TableRow, TableCell, Button } from './ForwardContractTable.styles';
 import AddForwardContractRow from '../AddForwardContractRow/AddForwardContractRow';
 import { CSVLink } from 'react-csv';
@@ -65,7 +65,27 @@ const ForwardContractTable = () => {
     
     });
   };
-  
+
+  // Handle clearing all forward contracts
+  const handleClear = () => {
+    dispatch(resetForwardContracts());
+
+    fetch(`${BASE_URL}/firebase-api/delete-all-forward-contracts/`, {
+      method: 'DELETE',
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message === "All Forward Contracts deleted successfully") {
+        console.log("All Forward Contracts deleted successfully");
+      } else {
+        console.error('Failed to delete all Forward Contracts:', data);
+      }
+    })
+    .catch(error => {
+      console.error('Error deleting all Forward Contracts:', error);
+      setErrorMessage('Error deleting all Forward Contracts');
+    });
+  };
 
   const mapHeaders = (fileHeaders) => {
     const mapping = {};
@@ -131,11 +151,10 @@ const ForwardContractTable = () => {
   };
 
   const formatAmount = (amount) => {
-    // Ensure the amount is a valid string and not undefined/null
     if (typeof amount === 'string') {
       const parsedAmount = parseFloat(amount.replace(/,/g, ''));
   
-      if (isNaN(parsedAmount)) return '-'; // Handle non-numeric values
+      if (isNaN(parsedAmount)) return '-';
   
       const amountInThousands = parsedAmount / 1000;
       const roundedValue = Math.round(amountInThousands);
@@ -145,16 +164,12 @@ const ForwardContractTable = () => {
         ? `(${formattedValue})`
         : formattedValue;
     }
-    // Return a fallback if the amount is invalid (undefined, null, etc.)
     return '-';
   };
-  
-  
-  
-  
 
   return (
     <div>
+      <h2>Forward Contracts</h2>
       <Button onClick={() => setIsPopupOpen(true)}>Add Row</Button>
       {isPopupOpen && <AddForwardContractRow closePopup={() => setIsPopupOpen(false)} />}
       <input type="file" accept=".csv" onChange={handleCSVUpload} />
@@ -164,6 +179,9 @@ const ForwardContractTable = () => {
       <CSVLink data={ForwardContracts} headers={expectedHeaders} filename="forward-contracts.csv">
         <Button>Download Sample CSV</Button>
       </CSVLink>
+
+      {/* Clear Button */}
+      <Button onClick={handleClear} style={{ marginTop: '10px', backgroundColor: 'red' }}>Clear All</Button>
 
       <Table>
         <thead>

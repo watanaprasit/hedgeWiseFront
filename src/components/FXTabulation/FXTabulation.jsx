@@ -85,12 +85,18 @@ const FXTabulation = () => {
   
   const getHedgedAmount = (currency, monthYear) => {
     const hedgedContract = forwardContracts.find((contract) => {
-      const contractMonth = contract['Maturity Month'] || 'Unknown';  
-      let contractYear = contract['Maturity Year'] || new Date().getFullYear(); 
+      const contractMonth = contract['Maturity Month'] || 'Unknown';
+      let contractYear = contract['Maturity Year'] || new Date().getFullYear();
   
       const contractMonthYear = `${contractMonth}-${contractYear}`;
   
-      return contract['Ccy Pair'] === `${currency}/USD` && contractMonthYear === monthYear;
+      // Normalize the Ccy Pair to match in either order
+      const [currency1, currency2] = contract['Ccy Pair'].split('/');
+  
+      return (
+        (currency1 === currency || currency2 === currency) &&
+        contractMonthYear === monthYear
+      );
     });
   
     if (!hedgedContract) {
@@ -98,8 +104,9 @@ const FXTabulation = () => {
     }
   
     const hedgedAmount = parseFloat(hedgedContract['Hedged Amt'].replace(/,/g, '')) || 0;
-    return hedgedAmount; 
+    return hedgedAmount;
   };
+  
 
   const getHedgedPercentage = (hedgedAmount, netExposure) => {
     const validHedgedAmount = Math.abs(parseFloat(hedgedAmount)) / 1000 || 0;
