@@ -152,6 +152,7 @@ const ProductionForecastTable = () => {
 
   return (
     <div>
+      <h2>Production Forecast Data</h2>
       <RightAlignedContainer>
         <Button onClick={openPopup}>Add Row</Button>
         <input type="file" accept=".csv" onChange={handleFileUpload} />

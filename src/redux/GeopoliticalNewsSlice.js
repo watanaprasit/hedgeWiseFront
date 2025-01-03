@@ -12,13 +12,16 @@ export const fetchGeopoliticalNews = createAsyncThunk(
 
 // Add the selector to your slice
 export const selectAmtCoverageSum = (state) => state.geopoliticalNews.amtCoverageSum;
+export const selectAnnualPremiumSum = (state) => state.geopoliticalNews.annualPremiumSum;
+
 
 const geopoliticalNewsSlice = createSlice({
   name: 'geopoliticalNews',
   initialState: {
     newsData: [],
-    PRIs: [],  // Ensuring PRIs are part of the initial state
-    amtCoverageSum: 0, // Initial sum for Amt Coverage
+    PRIs: [],  
+    amtCoverageSum: 0, 
+    annualPremiumSum: 0,
     status: 'idle',
     error: null,
   },
@@ -29,14 +32,14 @@ const geopoliticalNewsSlice = createSlice({
 
       // Make sure amtCoverage is always treated as a number
       newPRIs.forEach(pri => {
-        pri.amtCoverage = parseFloat(pri["Amt Coverage"].replace(/[^0-9.-]+/g, '')) || 0; // Remove non-numeric chars and convert to number
+        pri.amtCoverage = parseFloat(pri["Amt Coverage"].replace(/[^0-9.-]+/g, '')) || 0; 
+        pri.annualPremium = parseFloat(pri["Annual Premium"].replace(/[^0-9.-]+/g, '')) || 0;  // Convert Annual Premium to a number
       });
 
       state.PRIs.push(...newPRIs);
 
       // Recalculate Amt Coverage Sum
       state.amtCoverageSum = state.PRIs.reduce((sum, pri) => sum + (pri.amtCoverage || 0), 0);
-      console.log('Updated Amt Coverage Sum:', state.amtCoverageSum);  // Log the updated sum
     },
 
     deletePRI: (state, action) => {
@@ -47,18 +50,20 @@ const geopoliticalNewsSlice = createSlice({
 
         // Recalculate Amt Coverage Sum after deletion
         state.amtCoverageSum = state.PRIs.reduce((sum, pri) => sum + (pri.amtCoverage || 0), 0);
+        state.annualPremiumSum = state.PRIs.reduce((sum, pri) => sum + (pri.annualPremium || 0), 0);
       }
     },
     setPRIsFromBackend: (state, action) => {
       // Replaces the PRIs list with data from backend
       state.PRIs = action.payload.map((pri) => {
-        // Ensure amtCoverage is properly treated as a number (remove non-numeric chars)
         pri.amtCoverage = parseFloat(pri["Amt Coverage"].replace(/[^0-9.-]+/g, '')) || 0;
+        pri.annualPremium = parseFloat(pri["Annual Premium"].replace(/[^0-9.-]+/g, '')) || 0;
         return pri;
       });
 
-      // Recalculate Amt Coverage Sum
+     
       state.amtCoverageSum = state.PRIs.reduce((sum, pri) => sum + (pri.amtCoverage || 0), 0);
+      state.annualPremiumSum = state.PRIs.reduce((sum, pri) => sum + (pri.annualPremium || 0), 0);
     },
   },
   extraReducers: (builder) => {

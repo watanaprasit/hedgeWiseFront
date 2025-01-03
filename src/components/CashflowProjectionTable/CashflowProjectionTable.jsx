@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCashflowProjection, deleteCashflowProjection, updateCashflowProjection } from '../../redux/CashflowProjectionSlice';
-import { Table, TableHeader, TableRow, TableCell, Button, ScrollableTableContainer } from './CashflowProjectionTable.styles';
+import { Table, TableHeader, TableRow, TableCell, Button, ScrollableTableContainer, RightAlignedContainer } from './CashflowProjectionTable.styles';
 import AddCashflowProjectionRow from '../AddCashflowProjectionRow/AddCashflowProjectionRow';
 import { CSVLink } from 'react-csv';
 import Papa from 'papaparse';
@@ -174,15 +174,18 @@ const CashflowProjectionTable = () => {
     <div>
 
       <h2>Cashflow Projections</h2>
-      <Button onClick={() => setIsPopupOpen(true)}>Add Row</Button>
-      {isPopupOpen && !editingRow && <AddCashflowProjectionRow closePopup={() => setIsPopupOpen(false)} />}
-      <input type="file" accept=".csv" onChange={handleCSVUpload} />
-      {loading && <p>Loading...</p>}
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      <RightAlignedContainer>
+        <Button onClick={() => setIsPopupOpen(true)}>Add Row</Button>
+        {isPopupOpen && !editingRow && <AddCashflowProjectionRow closePopup={() => setIsPopupOpen(false)} />}
+        <input type="file" accept=".csv" onChange={handleCSVUpload} />
+        {loading && <p>Loading...</p>}
+        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
 
-      <CSVLink data={CashflowProjections} headers={expectedHeaders} filename="cashflow-projections.csv">
-        <Button>Download Sample CSV</Button>
-      </CSVLink>
+        <CSVLink data={CashflowProjections} headers={expectedHeaders} filename="cashflow-projections.csv">
+          <Button>Download Sample CSV</Button>
+        </CSVLink>
+      </RightAlignedContainer>
+
 
       {editingRow && (
         <div>

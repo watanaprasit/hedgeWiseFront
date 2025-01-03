@@ -62,3 +62,24 @@ export const TableWrapper = styled.div`
   }
 `;
 
+export const ScrollableTableContainer = styled.div`
+  max-height: 400px;
+  overflow-y: auto; /* Ensures vertical scrolling */
+  border: 1px solid #ccc;
+  margin-top: 10px;
+`;
+
+export const LeftAlignedContainer = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+`;
+
+export const RightAlignedContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+`;

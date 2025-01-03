@@ -43,3 +43,11 @@ export const ScrollableTableContainer = styled.div`
   border: 1px solid #ccc;
   margin-top: 10px;
 `;
+
+export const RightAlignedContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+`;

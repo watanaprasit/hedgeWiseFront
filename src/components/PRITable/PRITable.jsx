@@ -30,9 +30,11 @@ const PRITable = () => {
         if (data && Array.isArray(data)) {
           const mappedData = data.map((item) => ({
             id: item.id,
+            amtCoverage: Number(item["Amt Coverage"]) || 0,  // Convert Amt Coverage to a number
+            annualPremium: Number(item["Annual Premium"]) || 0,  // Convert Annual Premium to a number
             ...item.data,
           }));
-          dispatch(setPRIsFromBackend(mappedData));
+          dispatch(setPRIsFromBackend(mappedData)); // Dispatch the action to update Redux state
         } else {
           console.log("No valid PRIs data received.");
         }
@@ -43,6 +45,7 @@ const PRITable = () => {
       })
       .finally(() => setLoading(false));
   }, [dispatch]);
+  
   
 
   const mapHeaders = (fileHeaders) => {

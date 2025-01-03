@@ -7,6 +7,8 @@ import {
 } from './CommodityComputation.styles';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
+const BASE_URL = 'http://127.0.0.1:8081';
+
 const CommodityComputation = ({ productionForecastData }) => {
   const [volatilityData, setVolatilityData] = useState(null);
   const [latestPrice, setLatestPrice] = useState(null);
@@ -15,7 +17,7 @@ const CommodityComputation = ({ productionForecastData }) => {
 
   useEffect(() => {
     // Fetch volatility data
-    fetch('http://127.0.0.1:8001/volatility?symbol=BZ=F')
+    fetch(`${BASE_URL}/volatility?symbol=BZ=F`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -36,7 +38,7 @@ const CommodityComputation = ({ productionForecastData }) => {
       });
 
     // Fetch latest market price data
-    fetch('http://127.0.0.1:8001/api/brent-crude-data/')
+    fetch(`${BASE_URL}/api/brent-crude-data/`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -81,7 +83,7 @@ const CommodityComputation = ({ productionForecastData }) => {
 
   return (
     <ComputationContainer>
-      <ComputationHeader>Commodity Computation</ComputationHeader>
+      <ComputationHeader>Brent Crude Oil Computation</ComputationHeader>
 
       {/* Volatility Data */}
       <div>
@@ -105,18 +107,33 @@ const CommodityComputation = ({ productionForecastData }) => {
 
       {/* Past 7 Days Prices Line Chart */}
       <div>
-        <SectionHeader>Past 7 Days Prices</SectionHeader>
+      <SectionHeader>Past 7 Days Prices</SectionHeader>
         {pastWeekPrices.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={pastWeekPrices} margin={{ top: 20, right: 20, left: 10, bottom: 10 }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis domain={[72, 75]} /> {/* Y-axis with fixed range */}
+              <XAxis
+                dataKey="date"
+                tickFormatter={(value, index) => {
+                  // Show only the first and last date as ticks
+                  if (index === 0 || index === pastWeekPrices.length - 1) {
+                    return value;
+                  }
+                  return '';
+                }}
+              />
+              <YAxis domain={[74, 78]} />
               <Tooltip
                 formatter={(value) => `$${parseFloat(value).toFixed(3)}`} // Format price to 3 d.p.
                 labelFormatter={(label) => `Date: ${label}`} // Format label to include the date
               />
-              <Line type="monotone" dataKey="price" stroke="#8884d8" dot={true} />
+              <Line
+                type="monotone"
+                dataKey="price"
+                stroke="#8884d8"
+                dot={{ r: 5 }} // Customize dots
+                activeDot={{ r: 8 }} // Customize active dot size
+              />
             </LineChart>
           </ResponsiveContainer>
         ) : (
