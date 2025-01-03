@@ -18,8 +18,8 @@ const FXTabulation = () => {
   const [netExposureData, setNetExposureData] = useState([]);
   const [currencyFilter, setCurrencyFilter] = useState('');
   const [monthYearFilter, setMonthYearFilter] = useState('');
-  const [lowPoint, setLowPoint] = useState(0);
-  const [highPoint, setHighPoint] = useState(100);
+  const [lowPoint, setLowPoint] = useState(65);
+  const [highPoint, setHighPoint] = useState(85);
 
   useEffect(() => {
     const calculateNetExposure = () => {
@@ -148,16 +148,24 @@ const FXTabulation = () => {
       (monthYearFilter ? row.MonthYear === monthYearFilter : true)
   );
 
+  // Sort the data by MonthYear (using Date for proper chronological order)
+  const sortedData = filteredData.sort((a, b) => {
+    const [monthA, yearA] = a.MonthYear.split('-');
+    const [monthB, yearB] = b.MonthYear.split('-');
+    const dateA = new Date(`${monthA} 1, ${yearA}`);
+    const dateB = new Date(`${monthB} 1, ${yearB}`);
+    return dateA - dateB;
+  });
+
   return (
     <div>
       <h3>FX Hedging Portfolio</h3>
 
       <RightAlignedContainer>
-      <h3>Hedge Threshold</h3>
+        <h3>Hedge Threshold</h3>
       </RightAlignedContainer>
-     
+
       <RightAlignedContainer>
-        
         <div>
           <label>Low Point:</label>
           <select
@@ -208,11 +216,19 @@ const FXTabulation = () => {
                   <span>Month-Year</span>
                   <select onChange={(e) => setMonthYearFilter(e.target.value)} value={monthYearFilter}>
                     <option value="">All</option>
-                    {[...new Set(netExposureData.map((row) => row.MonthYear))].map((monthYear) => (
-                      <option key={monthYear} value={monthYear}>
-                        {monthYear}
-                      </option>
-                    ))}
+                    {[...new Set(netExposureData.map((row) => row.MonthYear))]
+                      .sort((a, b) => {
+                        const [monthA, yearA] = a.split('-');
+                        const [monthB, yearB] = b.split('-');
+                        const dateA = new Date(`${monthA} 1, ${yearA}`);
+                        const dateB = new Date(`${monthB} 1, ${yearB}`);
+                        return dateA - dateB;
+                      })
+                      .map((monthYear) => (
+                        <option key={monthYear} value={monthYear}>
+                          {monthYear}
+                        </option>
+                      ))}
                   </select>
                 </LeftAlignedContainer>
               </TableHeaderCell>
@@ -223,7 +239,7 @@ const FXTabulation = () => {
             </tr>
           </TableHead>
           <tbody>
-            {filteredData.map((row, index) => {
+            {sortedData.map((row, index) => {
               const hedgedAmount = getHedgedAmount(row.Currency, row.MonthYear);
               const hedgedPercentage = getHedgedPercentage(hedgedAmount, row.NetExposure);
 

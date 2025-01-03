@@ -16,6 +16,7 @@ const AssetLocationMap = () => {
 
   return (
     <div style={{ width: '100%', height: '500px' }}>
+      <h2>Assets Map</h2>
       <MapContainer
         center={[51.505, -0.09]} // Default map center (can be dynamic based on assets)
         zoom={2} // Initial zoom level

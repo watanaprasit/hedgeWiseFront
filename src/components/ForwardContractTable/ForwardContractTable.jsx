@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addForwardContract, deleteForwardContract, resetForwardContracts } from '../../redux/ForwardContractSlice';
-import { Table, TableHeader, TableRow, TableCell, Button } from './ForwardContractTable.styles';
+import { Table, TableHeader, TableRow, TableCell, Button, ScrollableTableContainer, RightAlignedContainer } from './ForwardContractTable.styles';
 import AddForwardContractRow from '../AddForwardContractRow/AddForwardContractRow';
 import { CSVLink } from 'react-csv';
 import Papa from 'papaparse';
@@ -66,7 +66,6 @@ const ForwardContractTable = () => {
     });
   };
 
-  // Handle clearing all forward contracts
   const handleClear = () => {
     dispatch(resetForwardContracts());
 
@@ -170,19 +169,22 @@ const ForwardContractTable = () => {
   return (
     <div>
       <h2>Forward Contracts</h2>
-      <Button onClick={() => setIsPopupOpen(true)}>Add Row</Button>
-      {isPopupOpen && <AddForwardContractRow closePopup={() => setIsPopupOpen(false)} />}
-      <input type="file" accept=".csv" onChange={handleCSVUpload} />
-      {loading && <p>Loading...</p>}
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      <RightAlignedContainer>
+        <Button onClick={() => setIsPopupOpen(true)}>Add Row</Button>
+        {isPopupOpen && <AddForwardContractRow closePopup={() => setIsPopupOpen(false)} />}
+        <input type="file" accept=".csv" onChange={handleCSVUpload} />
+        {loading && <p>Loading...</p>}
+        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
 
-      <CSVLink data={ForwardContracts} headers={expectedHeaders} filename="forward-contracts.csv">
-        <Button>Download Sample CSV</Button>
-      </CSVLink>
+        <CSVLink data={ForwardContracts} headers={expectedHeaders} filename="forward-contracts.csv">
+          <Button>Download Sample CSV</Button>
+        </CSVLink>
 
-      {/* Clear Button */}
-      <Button onClick={handleClear} style={{ marginTop: '10px', backgroundColor: 'red' }}>Clear All</Button>
+        {/* Clear Button */}
+        <Button onClick={handleClear} style={{ marginTop: '10px', backgroundColor: 'red' }}>Clear All</Button>
+      </RightAlignedContainer>
 
+      <ScrollableTableContainer>
       <Table>
         <thead>
           <TableRow>
@@ -218,6 +220,8 @@ const ForwardContractTable = () => {
           ))}
         </tbody>
       </Table>
+      </ScrollableTableContainer>
+      
     </div>
   );
 };
