@@ -5,6 +5,8 @@ import {
   Button, FormContainer, CloseButton, Overlay, Box, FormRow, SelectInput, InputField
 } from './AddProductionRow.styles';
 
+const BASE_URL = process.env.REACT_APP_API_URL;
+
 const AddProductionRow = ({ closePopup }) => {
   const dispatch = useDispatch();
 
@@ -55,7 +57,7 @@ const AddProductionRow = ({ closePopup }) => {
     // Dispatch the data to Redux
     dispatch(addDataUpload(formData)); // Removed the array wrapper
   
-    fetch('http://127.0.0.1:8000/firebase-api/add-production-row/', {
+    fetch(`${BASE_URL}/firebase-api/add-production-row/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

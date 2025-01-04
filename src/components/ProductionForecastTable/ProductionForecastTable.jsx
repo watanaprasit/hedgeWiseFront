@@ -12,8 +12,7 @@ const expectedHeaders = [
   "Due Month", "Year"
 ];
 
-
-const BASE_URL = 'http://127.0.0.1:8000'; 
+const API_BASE_URL = process.env.REACT_APP_API_URL
 
 const ProductionForecastTable = () => {
   const dispatch = useDispatch();
@@ -44,7 +43,7 @@ const ProductionForecastTable = () => {
   };
 
   useEffect(() => {
-    fetch(`${BASE_URL}/firebase-api/get-production-forecast/`)
+    fetch(`${API_BASE_URL}/firebase-api/get-production-forecast/`)
       .then((response) => response.json())
       .then((data) => {
         if (data && Array.isArray(data)) {
@@ -69,7 +68,7 @@ const ProductionForecastTable = () => {
   }, [dispatch]);
 
   const handleDelete = (id) => {
-    fetch(`${BASE_URL}/firebase-api/delete-production-forecast/${id}/`, {
+    fetch(`${API_BASE_URL}/firebase-api/delete-production-forecast/${id}/`, {
       method: 'DELETE',
     })
     .then((response) => response.json())
@@ -114,7 +113,7 @@ const ProductionForecastTable = () => {
         });
 
         try {
-          const response = await fetch(`${BASE_URL}/firebase-api/add-production-row/`, {
+          const response = await fetch(`${API_BASE_URL}/firebase-api/add-production-row/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(rowData),

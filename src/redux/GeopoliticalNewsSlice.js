@@ -1,9 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL
+
 export const fetchGeopoliticalNews = createAsyncThunk(
   'geopoliticalNews/fetchGeopoliticalNews',
   async () => {
-    const response = await fetch('http://127.0.0.1:8000/api/geopolitical-risk-data/');
+    const response = await fetch(`${API_BASE_URL}/api/geopolitical-risk-data/`);
     const text = await response.text();
     const data = JSON.parse(text);
     return data;

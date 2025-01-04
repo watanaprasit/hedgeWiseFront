@@ -5,7 +5,9 @@ import { Table, TableHeader, TableRow, TableCell, Button, ScrollableTableContain
 import { CSVLink } from 'react-csv';
 import Papa from 'papaparse';
 
-const BASE_URL = 'http://127.0.0.1:8000';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL
+
 
 const expectedHeaders = [
   "Insurer",
@@ -24,7 +26,7 @@ const PRITable = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`${BASE_URL}/firebase-api/get-PRIs/`)
+    fetch(`${API_BASE_URL}/firebase-api/get-PRIs/`)
       .then((response) => response.json())
       .then((data) => {
         if (data && Array.isArray(data)) {
@@ -89,7 +91,7 @@ const PRITable = () => {
           dispatch(addPRIs(formattedData));
 
           // Send the formatted data directly as an array to Firestore API
-          fetch(`${BASE_URL}/firebase-api/add-PRI/`, {
+          fetch(`${API_BASE_URL}/firebase-api/add-PRI/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -113,7 +115,7 @@ const PRITable = () => {
 
   const handleDelete = (id) => {
     setLoading(true);
-    fetch(`${BASE_URL}/firebase-api/delete-PRI/${id}/`, {
+    fetch(`${API_BASE_URL}/firebase-api/delete-PRI/${id}/`, {
       method: 'DELETE',
     })
       .then((response) => {

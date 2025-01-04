@@ -20,6 +20,8 @@ const expectedHeaders = [
   "RiskProfile"
 ];
 
+const BASE_URL = process.env.REACT_APP_API_URL;
+
 const CashflowProjectionTable = () => {
   const dispatch = useDispatch();
   const CashflowProjections = useSelector((state) => state.cashflowProjection.data);
@@ -31,7 +33,7 @@ const CashflowProjectionTable = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch('http://127.0.0.1:8000/firebase-api/get-cashflow-projections/')
+    fetch(`${BASE_URL}/firebase-api/get-cashflow-projections/`)
       .then((response) => response.json())
       .then((data) => {
         if (data && Array.isArray(data)) {
@@ -52,7 +54,7 @@ const CashflowProjectionTable = () => {
   const handleDelete = (id) => {
     dispatch(deleteCashflowProjection(id));
   
-    fetch(`http://127.0.0.1:8000/firebase-api/delete-cashflow-projection/${id}/`, {
+    fetch(`${BASE_URL}/firebase-api/delete-cashflow-projection/${id}/`, {
       method: 'DELETE',
     })
     .then(response => response.json())
@@ -79,7 +81,7 @@ const CashflowProjectionTable = () => {
     e.preventDefault();
     dispatch(updateCashflowProjection(formData));
 
-    fetch(`http://127.0.0.1:8000/firebase-api/modify-cashflow-projection/${formData.id}/`, {
+    fetch(`${BASE_URL}/firebase-api/modify-cashflow-projection/${formData.id}/`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -148,7 +150,7 @@ const CashflowProjectionTable = () => {
           });
 
           // Send the formatted data directly as an array to Firestore API
-          fetch('http://127.0.0.1:8000/firebase-api/add-cashflow-projection/', {
+          fetch(`${BASE_URL}/firebase-api/add-cashflow-projection/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

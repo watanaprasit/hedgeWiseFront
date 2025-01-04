@@ -1,7 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+const API_BASE_URL = process.env.REACT_APP_API_URL
+
 // Define the API endpoint
-const API_URL = "http://127.0.0.1:8001/api/brent-crude-data/";
+const API_URL = `${API_BASE_URL}/api/brent-crude-data/`;
 
 // Thunk to fetch Brent Crude closing price data
 export const fetchBrentCrudePrices = createAsyncThunk(

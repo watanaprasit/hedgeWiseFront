@@ -1,11 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// Selector to calculate the total USD Amt without rounding
 export const selectTotalUSD = (state) => {
 
   return state.forwardContract.data.reduce((total, contract) => {
-    const usdAmount = String(contract['USD Amt']).replace(/,/g, ''); // Convert to string and remove commas
-    const numericUSD = parseFloat(usdAmount); // Convert to a number
+    const usdAmount = String(contract['USD Amt']).replace(/,/g, ''); 
+    const numericUSD = parseFloat(usdAmount); 
     if (!isNaN(numericUSD)) {
       return total + numericUSD;
     }

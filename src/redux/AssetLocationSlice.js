@@ -10,7 +10,7 @@ export const assetLocationSlice = createSlice({
       const newAsset = action.payload;
       const exists = state.data.some(item => item.id === newAsset.id);
       if (!exists) {
-        state.data.push(newAsset);  // Ensure the data is being added to the state
+        state.data.push(newAsset); 
       }
     },
     deleteAssetLocation: (state, action) => {

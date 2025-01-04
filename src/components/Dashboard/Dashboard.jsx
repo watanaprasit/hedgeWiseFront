@@ -6,7 +6,7 @@ import { setPRIsFromBackend } from '../../redux/GeopoliticalNewsSlice';
 import { selectAmtCoverageSum, selectAnnualPremiumSum } from '../../redux/GeopoliticalNewsSlice';  
 import { DashboardContainer, DashboardHeader, RiskSummary, RiskCard, RiskTitle, RiskValue, CardContainer } from './Dashboard.styles';
 
-const BASE_URL = 'http://127.0.0.1:8000';
+const BASE_URL = process.env.REACT_APP_API_URL;
 
 const Dashboard = () => {
   const dispatch = useDispatch();

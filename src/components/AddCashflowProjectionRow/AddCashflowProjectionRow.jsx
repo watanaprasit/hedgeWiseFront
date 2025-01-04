@@ -3,6 +3,9 @@ import { useDispatch } from 'react-redux';
 import { addCashflowProjection } from '../../redux/CashflowProjectionSlice';
 import { Button, FormContainer, CloseButton, Overlay, Box, FormRow, SelectInput, InputField } from './AddCashflowProjectionRow.styles';
 
+const BASE_URL = process.env.REACT_APP_API_URL;
+
+
 const AddCashflowProjectionRow = ({ closePopup }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
@@ -60,7 +63,7 @@ const AddCashflowProjectionRow = ({ closePopup }) => {
 
     dispatch(addCashflowProjection(newCashflowProjection));
 
-    fetch('http://127.0.0.1:8000/firebase-api/add-cashflow-projection/', {
+    fetch(`${BASE_URL}/firebase-api/add-cashflow-projection/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

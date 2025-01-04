@@ -11,6 +11,8 @@ const expectedHeaders = [
   "status", "productType"
 ];
 
+const BASE_URL = process.env.REACT_APP_API_URL;
+
 const AssetLocationTable = () => {
   const dispatch = useDispatch();
   const assetLocations = useSelector((state) => state.assetLocation.data);
@@ -20,7 +22,7 @@ const AssetLocationTable = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch('http://127.0.0.1:8000/firebase-api/get-asset-locations/')
+    fetch(`${BASE_URL}/firebase-api/get-asset-locations/`)
       .then((response) => response.json())
       .then((data) => {
         if (data && Array.isArray(data)) {
@@ -40,7 +42,7 @@ const AssetLocationTable = () => {
 
   const handleDelete = (id) => {
     // Delete from Firestore API
-    fetch(`http://127.0.0.1:8000/firebase-api/delete-asset-location/${id}/`, {
+    fetch(`${BASE_URL}/firebase-api/delete-asset-location/${id}/`, {
       method: 'DELETE',
     })
     .then(response => response.json())
@@ -99,7 +101,7 @@ const AssetLocationTable = () => {
           });
 
           // Send the formatted data directly as an array to Firestore API
-          fetch('http://127.0.0.1:8000/firebase-api/add-asset-location/', {
+          fetch(`${BASE_URL}/firebase-api/add-asset-location/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

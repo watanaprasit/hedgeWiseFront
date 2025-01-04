@@ -16,7 +16,7 @@ const expectedHeaders = [
   "Maturity Year"
 ];
 
-const BASE_URL = 'http://127.0.0.1:8000';
+const BASE_URL = process.env.REACT_APP_API_URL;
 
 const ForwardContractTable = () => {
   const dispatch = useDispatch();

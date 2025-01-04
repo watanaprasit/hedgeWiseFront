@@ -3,6 +3,9 @@ import { useDispatch } from 'react-redux';
 import { addAssetLocation } from '../../redux/AssetLocationSlice';
 import { Button, FormContainer, CloseButton, Overlay, Box, FormRow, SelectInput, InputField } from './AddAssetLocationRow.styles';
 
+const BASE_URL = process.env.REACT_APP_API_URL;
+
+
 const AddAssetLocationRow = ({ closePopup }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
@@ -31,18 +34,18 @@ const AddAssetLocationRow = ({ closePopup }) => {
       return;
     }
 
-    // Remove ID generation, as Django handles the ID addition
+ 
     const newAsset = {
       ...formData,
     };
 
-    console.log("Dispatching new asset:", newAsset);  // Log the data being dispatched
+    console.log("Dispatching new asset:", newAsset);  
 
     // Dispatch the asset to the Redux store
     dispatch(addAssetLocation(newAsset));
 
     // Send the new asset to Firestore
-    fetch('http://127.0.0.1:8000/firebase-api/add-asset-location/', {
+    fetch(`${BASE_URL}/firebase-api/add-asset-location/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Define the async thunk to fetch FX rates from the correct API endpoint
+const API_BASE_URL = process.env.REACT_APP_API_URL
+
 export const fetchFXRatesThunk = createAsyncThunk(
   'fxRisk/fetchFXRates',
   async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/currency-data/'); // Correct endpoint
-      // Ensure the data is an array and return only the latest close prices per currency pair
+      const response = await axios.get(`${API_BASE_URL}/api/currency-data/`); 
       if (Array.isArray(response.data)) {
         const latestRates = response.data.reduce((acc, current) => {
           const existingPair = acc.find(
@@ -28,11 +28,10 @@ export const fetchFXRatesThunk = createAsyncThunk(
   }
 );
 
-// Slice for FX risk data
 const FXRiskSlice = createSlice({
   name: 'fxRisk',
   initialState: {
-    fxRates: [], // Initialize as an empty array
+    fxRates: [], 
     status: 'idle',
     error: null,
   },

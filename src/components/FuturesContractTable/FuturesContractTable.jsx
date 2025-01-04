@@ -5,7 +5,8 @@ import { Table, TableHeader, TableRow, TableCell, Button, ScrollableTableContain
 import { CSVLink } from 'react-csv';
 import Papa from 'papaparse';
 
-const BASE_URL = 'http://127.0.0.1:8000';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL
 
 const expectedHeaders = [
   "SettlementPeriod",
@@ -23,7 +24,7 @@ const FuturesContractTable = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`${BASE_URL}/firebase-api/get-futures-contracts/`)
+    fetch(`${API_BASE_URL}/firebase-api/get-futures-contracts/`)
       .then((response) => response.json())
       .then((data) => {
         if (data && Array.isArray(data)) {
@@ -82,7 +83,7 @@ const FuturesContractTable = () => {
           dispatch(addFuturesContracts(formattedData));
 
           // Send the formatted data directly as an array to Firestore API
-          fetch(`${BASE_URL}/firebase-api/add-futures-contract/`, {
+          fetch(`${API_BASE_URL}/firebase-api/add-futures-contract/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -106,7 +107,7 @@ const FuturesContractTable = () => {
 
   const handleDelete = (id) => {
     setLoading(true);
-    fetch(`${BASE_URL}/firebase-api/delete-futures-contract/${id}/`, {
+    fetch(`${API_BASE_URL}/firebase-api/delete-futures-contract/${id}/`, {
       method: 'DELETE',
     })
       .then((response) => {
