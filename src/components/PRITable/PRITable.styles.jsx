@@ -24,11 +24,13 @@ export const Button = styled.button`
   color: white;
   border: none;
   cursor: pointer;
+  border-radius: 8px;
 
   &:hover {
-    background-color: #45a049;
+    background-color: #67d967; /* Lighter green hover color */
   }
 `;
+
 
 export const ScrollableTableContainer = styled.div`
   max-height: 400px;

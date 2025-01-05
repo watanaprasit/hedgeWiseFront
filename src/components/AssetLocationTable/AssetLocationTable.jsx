@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addAssetLocation, deleteAssetLocation } from '../../redux/AssetLocationSlice';
-import { Table, TableHeader, TableRow, TableCell, Button } from './AssetLocationTable.styles';
+import { Table, TableHeader, TableRow, TableCell, Button, Heading, RightAlignedContainer } from './AssetLocationTable.styles';
 import AddAssetLocationRow from '../AddAssetLocationRow/AddAssetLocationRow';
 import { CSVLink } from 'react-csv';
 import Papa from 'papaparse';
@@ -125,16 +125,18 @@ const AssetLocationTable = () => {
 
   return (
     <div>
-      <h2>Asset Locations</h2>
-      <Button onClick={() => setIsPopupOpen(true)}>Add Row</Button>
-      {isPopupOpen && <AddAssetLocationRow closePopup={() => setIsPopupOpen(false)} />}
-      <input type="file" accept=".csv" onChange={handleCSVUpload} />
-      {loading && <p>Loading...</p>}
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      <Heading>Asset Locations List</Heading>
+      <RightAlignedContainer>
+        <Button onClick={() => setIsPopupOpen(true)}>Add Row</Button>
+        {isPopupOpen && <AddAssetLocationRow closePopup={() => setIsPopupOpen(false)} />}
+        <input type="file" accept=".csv" onChange={handleCSVUpload} />
+        {loading && <p>Loading...</p>}
+        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
 
-      <CSVLink data={assetLocations} headers={expectedHeaders} filename="asset_locations.csv">
-        <Button>Download Sample CSV</Button>
-      </CSVLink>
+        <CSVLink data={assetLocations} headers={expectedHeaders} filename="asset_locations.csv">
+          <Button>Download Sample CSV</Button>
+        </CSVLink>
+      </RightAlignedContainer>
 
       <Table>
         <thead>

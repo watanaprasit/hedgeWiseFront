@@ -5,6 +5,11 @@ import GeopoliticalNewsTable from '../components/GeopoliticalNewsTable/Geopoliti
 import AssetLocationTable from '../components/AssetLocationTable/AssetLocationTable';
 import AssetLocationMap from '../components/AssetLocationMap/AssetLocationMap';
 import PRITable from '../components/PRITable/PRITable';
+import styled from 'styled-components';
+
+const Section = styled.div`
+  margin-bottom: 40px;
+`;
 
 const GeopoliticalNewsRoute = () => {
   const dispatch = useDispatch();
@@ -31,8 +36,10 @@ const GeopoliticalNewsRoute = () => {
 
       {status === 'failed' && <p>Error: {error}</p>}
 
-      <AssetLocationMap />
-      
+      <Section>
+        <AssetLocationMap />
+      </Section>
+    
       <AssetLocationTable />
 
       <PRITable />
