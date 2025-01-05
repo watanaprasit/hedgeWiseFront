@@ -68,3 +68,38 @@ export const RiskCardHeader = styled.h3`
   color: #3498db; /* Light blue accents */
   margin-bottom: 20px;
 `;
+
+
+export const ClockContainer = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #2a2a2a;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  gap: 40px;  // Space between city-time pairs
+  align-items: center;
+`;
+
+export const ClockCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+export const ClockTitle = styled.h4`
+  font-size: 1.25rem;
+  color: #8e8e8e;
+  margin-bottom: 5px;
+`;
+
+export const ClockTime = styled.p`
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
+  margin: 0;
+`;
+
+

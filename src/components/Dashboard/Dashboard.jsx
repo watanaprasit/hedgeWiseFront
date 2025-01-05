@@ -4,7 +4,7 @@ import { setFuturesContractsFromBackend } from '../../redux/ProductionDataUpload
 import { setForwardContractDataFromBackend, selectTotalUSD } from '../../redux/ForwardContractSlice'; 
 import { setPRIsFromBackend } from '../../redux/GeopoliticalNewsSlice';
 import { selectAmtCoverageSum, selectAnnualPremiumSum } from '../../redux/GeopoliticalNewsSlice';  
-import { DashboardContainer, DashboardHeader, RiskSummary, RiskCard, RiskTitle, RiskValue, CardContainer } from './Dashboard.styles';
+import { DashboardContainer, DashboardHeader, RiskSummary, RiskCard, RiskTitle, RiskValue, CardContainer, ClockContainer, ClockCard } from './Dashboard.styles';  // Added ClockContainer and ClockCard
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -20,6 +20,11 @@ const Dashboard = () => {
 
   // State for Brent Crude closing price
   const [latestClosingPrice, setLatestClosingPrice] = useState(null);
+
+  // Time states for clocks
+  const [hagueTime, setHagueTime] = useState('');
+  const [tokyoTime, setTokyoTime] = useState('');
+  const [dubaiTime, setDubaiTime] = useState('');
 
   // Fetching data from the Redux store
   const { sumContractValues, weightedAveragePrice } = useSelector((state) => state.dataUpload);
@@ -129,6 +134,37 @@ const Dashboard = () => {
       });
   }, []);
 
+  // Update time for each timezone
+  useEffect(() => {
+    const updateTimes = () => {
+      const hagueTime = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Amsterdam',
+        timeStyle: 'short',
+        hourCycle: 'h23',
+      }).format(new Date());
+
+      const tokyoTime = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Tokyo',
+        timeStyle: 'short',
+        hourCycle: 'h23',
+      }).format(new Date());
+
+      const dubaiTime = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Dubai',
+        timeStyle: 'short',
+        hourCycle: 'h23',
+      }).format(new Date());
+
+      setHagueTime(hagueTime);
+      setTokyoTime(tokyoTime);
+      setDubaiTime(dubaiTime);
+    };
+
+    updateTimes();
+    const interval = setInterval(updateTimes, 60000); // Update every minute
+    return () => clearInterval(interval); // Clear interval on component unmount
+  }, []);
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -140,7 +176,23 @@ const Dashboard = () => {
   return (
     <DashboardContainer>
       <DashboardHeader>HedgeWise Risk Dashboard</DashboardHeader>
-      
+
+      {/* Time Clocks */}
+      <ClockContainer>
+        <ClockCard>
+          <RiskTitle>The Hague</RiskTitle>
+          <RiskValue>{hagueTime}</RiskValue>
+        </ClockCard>
+        <ClockCard>
+          <RiskTitle>Tokyo</RiskTitle>
+          <RiskValue>{tokyoTime}</RiskValue>
+        </ClockCard>
+        <ClockCard>
+          <RiskTitle>Dubai</RiskTitle>
+          <RiskValue>{dubaiTime}</RiskValue>
+        </ClockCard>
+      </ClockContainer>
+
       <CardContainer>
         <RiskCard>
           <RiskTitle>Brent Crude Oil Risk Overview</RiskTitle>
@@ -162,6 +214,7 @@ const Dashboard = () => {
 
         <RiskCard>
           <RiskTitle>Political Risk Insurance Policies</RiskTitle>
+
           <RiskSummary>
             <RiskCard>
               <RiskTitle>PRI Coverage</RiskTitle>
