@@ -38,6 +38,12 @@ const SignUpForm = () => {
   return (
     <AuthContainer>
       <FormWrapper>
+      <img 
+          src="/HedgeWiseLogo.png" 
+          alt="HedgeWise Logo" 
+          style={{ width: '150px', height: 'auto', marginBottom: '20px' }} 
+        />
+
         <Title>Sign Up</Title>
         {success && <SuccessText>Registration successful! You are now logged in.</SuccessText>}
         {error && <ErrorText>{error}</ErrorText>}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { login } from '../../../redux/authSlice';
 import { AuthContainer, FormWrapper, Title, ErrorText, InputField, SubmitButton } from '../Auth.styles';
-import { Link } from 'react-router-dom';  // Import Link to navigate to the Sign Up page
+import { Link } from 'react-router-dom';  
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
