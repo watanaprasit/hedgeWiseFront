@@ -1,4 +1,3 @@
-// Auth.styles.jsx
 import styled from 'styled-components';
 
 export const AuthContainer = styled.div`

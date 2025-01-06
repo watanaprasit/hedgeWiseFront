@@ -29,12 +29,14 @@ export const LogoutButton = styled.button`
   }
 `;
 
+
 export const TimezoneDisplay = styled.div`
   font-size: 14px;
   font-weight: 500;
   color: #00d1b2;
   display: flex;
   align-items: center;
+  margin-left: ${({ leftMargin }) => leftMargin || "-120px"};
 
   strong {
     color: #ffffff;
@@ -50,3 +52,4 @@ export const TimezoneDisplay = styled.div`
     margin: 0 8px;
   }
 `;
+
