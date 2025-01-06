@@ -4,7 +4,7 @@ import { setFuturesContractsFromBackend } from '../../redux/ProductionDataUpload
 import { setForwardContractDataFromBackend, selectTotalUSD } from '../../redux/ForwardContractSlice'; 
 import { setPRIsFromBackend } from '../../redux/GeopoliticalNewsSlice';
 import { selectAmtCoverageSum, selectAnnualPremiumSum } from '../../redux/GeopoliticalNewsSlice';  
-import { DashboardContainer, DashboardHeader, RiskSummary, RiskCard, RiskTitle, RiskValue, CardContainer, ClockContainer, ClockCard } from './Dashboard.styles';  // Added ClockContainer and ClockCard
+import { DashboardContainer, DashboardHeader, RiskSummary, RiskCard, RiskTitle, RiskValue, CardContainer } from './Dashboard.styles';
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -21,11 +21,6 @@ const Dashboard = () => {
   // State for Brent Crude closing price
   const [latestClosingPrice, setLatestClosingPrice] = useState(null);
 
-  // Time states for clocks
-  const [hagueTime, setHagueTime] = useState('');
-  const [tokyoTime, setTokyoTime] = useState('');
-  const [dubaiTime, setDubaiTime] = useState('');
-
   // Fetching data from the Redux store
   const { sumContractValues, weightedAveragePrice } = useSelector((state) => state.dataUpload);
 
@@ -33,10 +28,9 @@ const Dashboard = () => {
   const formattedSumContractValues = sumContractValues > 0 ? sumContractValues.toLocaleString() : 'N/A';
   const formattedWeightedAveragePrice = weightedAveragePrice > 0 ? weightedAveragePrice.toFixed(2) : 'N/A';
 
-  const totalUSD = useSelector(selectTotalUSD);  // Fetch the total USD amount
-  const amtCoverageSum = useSelector(selectAmtCoverageSum); // Fetch amtCoverageSum from Redux store
-  const annualPremiumSum = useSelector(selectAnnualPremiumSum);  // Access annualPremiumSum from Redux store
-
+  const totalUSD = useSelector(selectTotalUSD);
+  const amtCoverageSum = useSelector(selectAmtCoverageSum);
+  const annualPremiumSum = useSelector(selectAnnualPremiumSum);
 
   useEffect(() => {
     setLoading(true);
@@ -46,13 +40,11 @@ const Dashboard = () => {
         if (data && Array.isArray(data)) {
           const mappedData = data.map((item) => ({
             id: item.id,
-            amtCoverage: Number(item["Amt Coverage"]) || 0,  // Access "Amt Coverage" instead of amtCoverage
-            annualPremium: Number(item["Annual Premium"]) || 0,  // Convert Annual Premium to a number
+            amtCoverage: Number(item["Amt Coverage"]) || 0,
+            annualPremium: Number(item["Annual Premium"]) || 0,
             ...item.data,
           }));
           dispatch(setPRIsFromBackend(mappedData));
-        } else {
-          console.log("No valid PRIs data received.");
         }
       })
       .catch((error) => {
@@ -62,7 +54,6 @@ const Dashboard = () => {
       .finally(() => setLoading(false));
   }, [dispatch]);
 
-  // Fetching forward contracts from backend API
   useEffect(() => {
     setLoading(true);
     fetch(`${BASE_URL}/firebase-api/get-forward-contracts/`)
@@ -83,7 +74,6 @@ const Dashboard = () => {
       .finally(() => setLoading(false));
   }, [dispatch]);
 
-  // Fetching futures contracts from backend API
   useEffect(() => {
     setLoading(true);
     fetch(`${BASE_URL}/firebase-api/get-futures-contracts/`)
@@ -104,7 +94,6 @@ const Dashboard = () => {
       .finally(() => setLoading(false));
   }, [dispatch]);
 
-  // Fetching FX rates from backend API
   useEffect(() => {
     fetch(`${BASE_URL}/api/currency-data/`)
       .then((response) => response.json())
@@ -119,7 +108,6 @@ const Dashboard = () => {
       });
   }, []);
 
-  // Fetching Brent Crude latest closing price from backend API
   useEffect(() => {
     fetch(`${BASE_URL}/api/brent-crude-data/`)
       .then((response) => response.json())
@@ -134,37 +122,6 @@ const Dashboard = () => {
       });
   }, []);
 
-  // Update time for each timezone
-  useEffect(() => {
-    const updateTimes = () => {
-      const hagueTime = new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Europe/Amsterdam',
-        timeStyle: 'short',
-        hourCycle: 'h23',
-      }).format(new Date());
-
-      const tokyoTime = new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Asia/Tokyo',
-        timeStyle: 'short',
-        hourCycle: 'h23',
-      }).format(new Date());
-
-      const dubaiTime = new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Asia/Dubai',
-        timeStyle: 'short',
-        hourCycle: 'h23',
-      }).format(new Date());
-
-      setHagueTime(hagueTime);
-      setTokyoTime(tokyoTime);
-      setDubaiTime(dubaiTime);
-    };
-
-    updateTimes();
-    const interval = setInterval(updateTimes, 60000); // Update every minute
-    return () => clearInterval(interval); // Clear interval on component unmount
-  }, []);
-
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -176,22 +133,6 @@ const Dashboard = () => {
   return (
     <DashboardContainer>
       <DashboardHeader>HedgeWise Risk Dashboard</DashboardHeader>
-
-      {/* Time Clocks */}
-      <ClockContainer>
-        <ClockCard>
-          <RiskTitle>The Hague</RiskTitle>
-          <RiskValue>{hagueTime}</RiskValue>
-        </ClockCard>
-        <ClockCard>
-          <RiskTitle>Tokyo</RiskTitle>
-          <RiskValue>{tokyoTime}</RiskValue>
-        </ClockCard>
-        <ClockCard>
-          <RiskTitle>Dubai</RiskTitle>
-          <RiskValue>{dubaiTime}</RiskValue>
-        </ClockCard>
-      </ClockContainer>
 
       <CardContainer>
         <RiskCard>
@@ -214,7 +155,6 @@ const Dashboard = () => {
 
         <RiskCard>
           <RiskTitle>Political Risk Insurance Policies</RiskTitle>
-
           <RiskSummary>
             <RiskCard>
               <RiskTitle>PRI Coverage</RiskTitle>
@@ -234,7 +174,6 @@ const Dashboard = () => {
               <RiskTitle>FX Portfolio</RiskTitle>
               <RiskValue>{totalUSD > 0 ? totalUSD.toLocaleString() : 'N/A'}</RiskValue>
             </RiskCard>
-            
             {fxRates.length > 0 ? (
               fxRates.map((rate, index) => (
                 <RiskCard key={index}>

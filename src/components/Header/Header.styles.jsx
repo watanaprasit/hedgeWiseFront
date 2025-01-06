@@ -1,36 +1,52 @@
-// Header.styles.jsx
 import styled from 'styled-components';
 
 export const HeaderWrapper = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #f4f4f4;
-  padding: 10px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  z-index: 1000;
-  margin-bottom: 20px;
+  padding: 10px 20px;
+  background-color: #1e1e2f;
+  color: #ffffff;
+  font-family: 'Arial', sans-serif;
 `;
 
-export const Title = styled.span`
-  font-size: 18px;
+export const Title = styled.h1`
+  font-size: 20px;
   font-weight: bold;
-  color: #333;
 `;
 
 export const LogoutButton = styled.button`
-  background: none;
+  background-color: #ff4d4f;
+  color: #fff;
   border: none;
-  color: blue;
+  padding: 8px 12px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
-  text-decoration: underline;
-  
+  font-size: 14px;
+
   &:hover {
-    color: darkblue;
+    background-color: #d9363e;
+  }
+`;
+
+export const TimezoneDisplay = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+  color: #00d1b2;
+  display: flex;
+  align-items: center;
+
+  strong {
+    color: #ffffff;
+  }
+
+  &::before {
+    content: '';
+    margin-right: 8px;
+    color: #ffdd57;
+  }
+
+  span {
+    margin: 0 8px;
   }
 `;

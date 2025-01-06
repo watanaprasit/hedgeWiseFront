@@ -9,6 +9,9 @@ import LoginForm from './components/Auth/LoginForm/LoginForm';
 import SignUpForm from './components/Auth/SignUpFrom/SignUpForm';
 import PrivateRoute from './components/Auth/PrivateRoute/PrivateRoute';
 import Header from './components/Header/Header';
+import FooterContainer from './components/Footer/FooterContainer/FooterContainer';
+import PrivacyPolicy from './components/Footer/PrivacyPolicy/PrivacyPolicy';
+import TermsOfService from './components/Footer/TermsOfService/TermsOfService';
 
 const App = () => {
   const [userEmail, setUserEmail] = useState('');
@@ -27,63 +30,60 @@ const App = () => {
   const protectedRoutes = ['/dashboard', '/fx-risk', '/commodity-risk', '/geopolitical-risk'];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {/* Only render Header on protected routes */}
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      {/* Header */}
       {protectedRoutes.includes(location.pathname) && <Header userEmail={userEmail} />}
       
-      <div style={{ display: 'flex' }}>
-        {/* Render Sidebar only for protected routes */}
-        {protectedRoutes.includes(location.pathname) && <Sidebar />}
-        
-        <div
-          style={{
-            marginLeft: protectedRoutes.includes(location.pathname) ? '260px' : '0', // Adjust layout based on whether sidebar is shown
-            padding: '20px',
-            paddingTop: protectedRoutes.includes(location.pathname) ? '100px' : '20px', // Ensure padding for header space
-            width: '100%',
-            boxSizing: 'border-box',  // Ensures padding is accounted for in width calculations
-          }}
-        >
-          <Routes>
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/signup" element={<SignUpForm />} />
+      {/* Horizontal Navigation Bar */}
+      {protectedRoutes.includes(location.pathname) && <Sidebar />}
+      
+      {/* Main Content */}
+      <div style={{ flex: 1, padding: '20px', boxSizing: 'border-box' }}>
+        <Routes>
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/signup" element={<SignUpForm />} />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/fx-risk"
+            element={
+              <PrivateRoute>
+                <FXRiskRoute />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/commodity-risk"
+            element={
+              <PrivateRoute>
+                <CommodityRiskRoute />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/geopolitical-risk"
+            element={
+              <PrivateRoute>
+                <GeopoliticalNewsRoute />
+              </PrivateRoute>
+            }
+          />
 
-            {/* Protect Routes with PrivateRoute */}
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/fx-risk"
-              element={
-                <PrivateRoute>
-                  <FXRiskRoute />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/commodity-risk"
-              element={
-                <PrivateRoute>
-                  <CommodityRiskRoute />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/geopolitical-risk"
-              element={
-                <PrivateRoute>
-                  <GeopoliticalNewsRoute />
-                </PrivateRoute>
-              }
-            />
-          </Routes>
-        </div>
+          <Route path="/privacy" element={<PrivacyPolicy />} />  
+
+          <Route path="/terms" element={<TermsOfService />} />  
+
+
+        </Routes>
       </div>
+
+      <FooterContainer />
     </div>
   );
 };

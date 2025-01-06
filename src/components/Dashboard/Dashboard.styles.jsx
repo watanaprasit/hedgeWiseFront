@@ -4,7 +4,6 @@ export const DashboardContainer = styled.div`
   padding: 20px;
   display: flex;
   flex-direction: column;
-  background-color: #1e1e1e; /* Dark background */
   height: 100vh;
   color: #E1E1E1; /* Light text */
 `;
@@ -13,9 +12,12 @@ export const DashboardHeader = styled.h1`
   text-align: center;
   font-size: 2.5rem;
   font-weight: bold;
-  color: #fff;
   margin-bottom: 40px;
+  padding: 20px; /* Optional: Add some padding for better spacing */
+  color: #000000; /* Black font color */
+  border-radius: 5px; /* Optional: Adds rounded corners */
 `;
+
 
 export const CardContainer = styled.div`
   display: flex;
