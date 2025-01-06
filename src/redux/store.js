@@ -6,6 +6,7 @@ import productionDataUploadReducer from './ProductionDataUploadSlice';
 import assetLocationReducer from './AssetLocationSlice';
 import cashflowProjectionReducer from './CashflowProjectionSlice';
 import forwardContractReducer from './ForwardContractSlice';
+import authReducer from './authSlice';
 
 const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ const store = configureStore({
     assetLocation: assetLocationReducer,
     cashflowProjection: cashflowProjectionReducer,
     forwardContract : forwardContractReducer, 
+    auth: authReducer
   },
 });
 
