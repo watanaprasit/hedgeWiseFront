@@ -72,7 +72,7 @@ const PrivacyPolicy = () => {
       <Section>
         <Title>Contact Us</Title>
         <Paragraph>
-          If you have any questions about this Privacy Policy, please contact us at [email].
+          If you have any questions about this Privacy Policy, please contact us at hedgewiseinc@gmail.com .
         </Paragraph>
       </Section>
 
