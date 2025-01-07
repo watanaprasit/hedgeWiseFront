@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar/Sidebar';
 import Dashboard from './components/Dashboard/Dashboard';
 import FXRiskRoute from './routes/FXRiskRoute';
@@ -15,31 +15,30 @@ import TermsOfService from './components/Footer/TermsOfService/TermsOfService';
 
 const App = () => {
   const [userEmail, setUserEmail] = useState('');
-  const location = useLocation(); // Use useLocation to track the current route
+  const location = useLocation(); 
 
   useEffect(() => {
-    // Retrieve the user email (could be stored in localStorage or state)
     const storedEmail = localStorage.getItem('userEmail');
-    console.log('Stored email:', storedEmail); // Debugging
+    console.log('Stored email:', storedEmail); 
     if (storedEmail) {
       setUserEmail(storedEmail);
     }
   }, []);
 
-  // List of routes where you want to show the Header and Sidebar
   const protectedRoutes = ['/dashboard', '/fx-risk', '/commodity-risk', '/geopolitical-risk'];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* Header */}
+
       {protectedRoutes.includes(location.pathname) && <Header userEmail={userEmail} />}
       
-      {/* Horizontal Navigation Bar */}
       {protectedRoutes.includes(location.pathname) && <Sidebar />}
       
-      {/* Main Content */}
       <div style={{ flex: 1, padding: '20px', boxSizing: 'border-box' }}>
         <Routes>
+
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
           <Route path="/login" element={<LoginForm />} />
           <Route path="/signup" element={<SignUpForm />} />
           <Route
