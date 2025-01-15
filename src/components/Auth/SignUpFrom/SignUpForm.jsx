@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { login } from '../../../redux/authSlice';
 import { AuthContainer, FormWrapper, Title, InputField, SubmitButton, ErrorText, SuccessText } from '../Auth.styles';
-import { Link } from 'react-router-dom';  // Import Link to navigate to the Sign In page
+import { Link } from 'react-router-dom';  
+import { useNavigate } from 'react-router-dom';  
+
 
 const SignUpForm = () => {
   const [email, setEmail] = useState('');
@@ -10,6 +12,8 @@ const SignUpForm = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();  // Initialize useNavigate
+
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -29,6 +33,7 @@ const SignUpForm = () => {
       if (data.message) {
         setSuccess(true);
         dispatch(login(data.message)); // Automatically log in the user
+        navigate('/dashboard');  // Navigate to the Dashboard page
       }
     } catch (err) {
       setError('Sign up failed. Please try again.');
