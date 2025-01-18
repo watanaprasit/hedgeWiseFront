@@ -67,12 +67,14 @@ const LoginForm = () => {
           <SubmitButton type="submit">Login</SubmitButton>
         </form>
 
-        {/* Update the prompt text */}
         <p>
           Do not have an account?{' '}
           <Link to="/signup" style={{ color: '#5c6bc0', textDecoration: 'none' }}>
             Sign Up
           </Link>.
+        </p>
+        <p style={{ marginTop: '20px' }}>
+          Please refresh this link <a href="https://hedgewiseback.onrender.com/" target="_blank" rel="noopener noreferrer">https://hedgewiseback.onrender.com/</a> if unable to login, thank you.
         </p>
       </FormWrapper>
     </AuthContainer>
